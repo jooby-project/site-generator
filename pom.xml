@@ -5,10 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.jooby</groupId>
-  <artifactId>jooby-site</artifactId>
+  <artifactId>site-generator</artifactId>
   <version>1.0</version>
 
-  <name>jooby-site</name>
+  <name>site-generator</name>
   <description>Web Site Generator</description>
 
   <dependencies>
