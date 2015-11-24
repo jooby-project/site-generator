@@ -1,0 +1,36 @@
+<project default="rouge">
+  <property name="rouge.workdir" value="target${file.separator}rouge-tmp" />
+
+  <property name="rouge.cp" value="src${file.separator}main${file.separator}resources" />
+
+  <property name="jruby.version" value="9.0.1.0" />
+
+  <property name="jruby.cp" value="${user.home}${file.separator}.m2${file.separator}repository${file.separator}org${file.separator}jruby${file.separator}jruby-complete${file.separator}${jruby.version}${file.separator}jruby-complete-${jruby.version}.jar" />
+
+  <target name="rouge">
+
+    <echo>gem install rouge</echo>
+    <java classname="org.jruby.Main" classpath="${jruby.cp}" fork="true">
+      <arg value="-S" />
+      <arg value="gem" />
+      <arg value="install" />
+      <arg value="-i" />
+      <arg value="${rouge.workdir}" />
+      <arg value="rouge" />
+    </java>
+
+    <mkdir dir="${rouge.cp}/gems" />
+    <mkdir dir="${rouge.cp}/specifications" />
+
+    <copy todir="${rouge.cp}/gems">
+      <fileset dir="${rouge.workdir}${file.separator}gems">
+        <include name="*/lib/**" />
+        <include name="*/VERSION*" />
+      </fileset>
+    </copy>
+
+    <copy todir="${rouge.cp}/specifications">
+      <fileset dir="${rouge.workdir}${file.separator}specifications" />
+    </copy>
+  </target>
+</project>

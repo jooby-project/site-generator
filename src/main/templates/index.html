@@ -1,0 +1,188 @@
+{{#partial "main-class"}}page-home{{/partial}}
+{{#partial "main"}}
+<div class="home-top"><span class="icon-logo-big"></span>
+  <h2>do more, more easily</h2>
+  <h1><strong>Jooby</strong> a scalable, fast and modular micro web framework for Java.</h1>
+</div>
+<div data-slider data-pagination=".swiper-pagination" data-effect="fade" class="home-slider">
+  <div class="row">
+    <div class="swiper-pagination"></div>
+    <div class="swiper-container">
+      <div class="swiper-btn swiper-btn-prev"></div>
+      <div class="swiper-btn swiper-btn-next"></div>
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <div class="slider-icon">
+            <div class="circle"><span class="icon-icn-solid"></span>
+            </div>
+          </div>
+          <div class="slider-data">
+            <h3>Solid</h3>
+            <p>Build on top of mature technologies.</p>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="slider-icon">
+            <div class="circle"><span class="icon-icn-scalable"></span>
+            </div>
+          </div>
+          <div class="slider-data">
+            <h3>Scalable</h3>
+            <p>Stateless application development.</p>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="slider-icon">
+            <div class="circle"><span class="icon-icn-modular"></span>
+            </div>
+          </div>
+          <div class="slider-data">
+            <h3>Fast, modular and extensible</h3>
+            <p>So extensible that even the web server is plugable.  </p>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="slider-icon">
+            <div class="circle"><span class="icon-icn-simple"></span>
+            </div>
+          </div>
+          <div class="slider-data">
+            <h3>Simple, effective and easy to learn.</h3>
+            <p>Ideal for small but also large scale applications.</p>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="slider-icon">
+            <div class="circle"><span class="icon-icn-modern"></span>
+            </div>
+          </div>
+          <div class="slider-data">
+            <h3>Ready for modern web</h3>
+            <p>With the awesome and powerful <a href="/doc/assets" title="A library to validate, concatenate, minify or compress JavaScript and CSS files!">asset module</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mod mod-full-code">
+  <div class="row">
+    <div class="mod-header">
+      <h3 class="mod-title">Hello World!</h3>
+    </div>
+    <div class="mod-content">
+      <div class="code-lang-box">
+        <ul class="nav-lang">
+          <li data-lang="java" class="active">Java</li>
+          <li data-lang="js">Javascript</li>
+        </ul>
+        <ul class="lang">
+          <li class="java active">
+            <div class="highlighter-rouge">
+              <div class="copy-bar">
+                <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+              </div>
+              <pre class=""><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">org.jooby.Jooby</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span>
+
+  <span class="o">{</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"Hey Jooby!"</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+    <span class="k">new</span> <span class="nf">App</span><span class="o">().</span><span class="na">start</span><span class="o">(</span><span class="n">args</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+            </div>
+          </li>
+          <li class="js">
+            <div class="highlighter-rouge">
+              <div class="copy-bar">
+                <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+              </div>
+              <pre class="highlight"><code class="language-js" data-lang="js"><span class="cm">/**</span>
+<span class="cm"> * Creates a new App via: jooby()</span>
+<span class="cm"> */</span>
+<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">jooby</span><span class="p">();</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Add routes</span>
+<span class="cm"> */</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="s1">&#39;Hey Jooby!&#39;</span><span class="p">);</span>
+</code></pre>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="home-actions">
+  <div class="row">
+    <div class="mod mod-features">
+      <div class="mod-header">
+        <h3 class="mod-title">Killer Features</h3>
+      </div>
+      <div data-slider data-pagination=".swiper-pagination" data-effect="fade" class="mod-content">
+        <div class="swiper-pagination"></div>
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <dl>
+                <dt>Multi-Language</dt>
+                <dd>Write application in Java or <a href="/doc/js" title="Write apps in JavaScript!">Javascript</a></dd>
+              </dl>
+            </div>
+            <div class="swiper-slide">
+              <dl>
+                <dt>Scripting programming model</dt>
+                <dd>Like <a href="http://expressjs.com">express.js</a>, <a href="http://www.sinatrarb.com/">Sinatra</a>, etc..</dd>
+              </dl>
+              <dl>
+                <dt>MVC programming model</dt>
+                <dd>Like <a href="http://spring.io/">Spring</a> controllers or <a href="https://jersey.java.net/">Jersey</a> resources</dd>
+              </dl>
+            </div>
+            <div class="swiper-slide">
+              <dl>
+                <dt>Multi-server</dt>
+                <dd>Including <a href="http://netty.io/">Netty</a>, <a href="http://www.eclipse.org/jetty/">Jetty</a> and <a href="http://undertow.io/">Undertow</a></dd>
+              </dl>
+            </div>
+            <div class="swiper-slide">
+              <dl>
+                <dt>Web-Socket</dt>
+                <dd>Build real time application with web sockets!</dd>
+              </dl>
+            </div>
+            <div class="swiper-slide">
+              <dl>
+                <dt>Dependency Injection</dt>
+                <dd>Powered by <a href="https://github.com/google/guice">Guice</a></dd>
+              </dl>
+            </div>
+            <div class="swiper-slide">
+              <dl>
+                <dt>Hot reload of classes for fast development</dt>
+                <dd>Powered by <a href="https://github.com/jboss-modules/jboss-modules">JBoos Modules</a></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mod mod-learn">
+      <div class="mod-header">
+        <h3 class="mod-title">Want to learn more?</h3>
+      </div>
+      <div class="mod-content"><span class="icon-code-console-big"></span>
+        <p>Check out the <a href="/quickstart" title="Quick start">quickstart</a> guide or our <a href="https://github.com/jooby-starters">template collection. </a></p>
+      </div>
+    </div>
+  </div>
+</div>
+{{/partial}}
+
+{{> layout}}

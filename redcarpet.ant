@@ -1,0 +1,36 @@
+<project default="kramdown">
+  <property name="kramdown.workdir" value="target${file.separator}kramdown-tmp" />
+
+  <property name="kramdown.cp" value="src${file.separator}main${file.separator}resources" />
+
+  <property name="jruby.version" value="9.0.1.0" />
+
+  <property name="jruby.cp" value="${user.home}${file.separator}.m2${file.separator}repository${file.separator}org${file.separator}jruby${file.separator}jruby-complete${file.separator}${jruby.version}${file.separator}jruby-complete-${jruby.version}.jar" />
+
+  <target name="kramdown">
+
+    <echo>gem install kramdown</echo>
+    <java classname="org.jruby.Main" classpath="${jruby.cp}" fork="true">
+      <arg value="-S" />
+      <arg value="gem" />
+      <arg value="install" />
+      <arg value="-i" />
+      <arg value="${kramdown.workdir}" />
+      <arg value="kramdown" />
+    </java>
+
+    <mkdir dir="${kramdown.cp}/gems" />
+    <mkdir dir="${kramdown.cp}/specifications" />
+
+    <copy todir="${kramdown.cp}/gems">
+      <fileset dir="${kramdown.workdir}${file.separator}gems">
+        <include name="*/lib/**" />
+        <include name="*/VERSION*" />
+      </fileset>
+    </copy>
+
+    <copy todir="${kramdown.cp}/specifications">
+      <fileset dir="${kramdown.workdir}${file.separator}specifications" />
+    </copy>
+  </target>
+</project>

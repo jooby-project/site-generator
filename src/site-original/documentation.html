@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>##SITE_TITLE##</title>
+    <meta name="description" content="##SITE_DESCRIPTION##">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="#">
+    <link rel="publisher" href="#">
+    <meta name="robots" content="robots.txt">
+    <meta name="og:title" content="##SITE_TITLE##">
+    <meta name="og:description" content="##SITE_DESCRIPTION##">
+    <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    -->
+    <meta name="og:type" content="website">
+    <meta name="og:url" content="#">
+    <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    -->
+    <meta name="og:image" content="resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="#">
+    <meta name="og:region" content="#">
+    <meta name="og:country-name" content="#">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="##SITE_TITLE##">
+    <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    -->
+    <meta name="twitter:image" content="resources/images/apps/twitter_summary_card.jpg">
+    <meta name="twitter:site" content="#">
+    <meta name="twitter:creator" content="#">
+    <meta name="twitter:domain" content="#">
+    <meta name="twitter:url" content="#">
+    <meta name="twitter:description" content="##SITE_DESCRIPTION##">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed57.png" sizes="57x57">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed60.png" sizes="60x60">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed72.png" sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed76.png" sizes="76x76">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed114.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed120.png" sizes="120x120">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed144.png" sizes="144x144">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed152.png" sizes="152x152">
+    <link rel="apple-touch-icon-precomposed" href="resources/images/apps/precomposed180.png" sizes="180x180">
+    <link href="resources/images/apps/favicon.ico" rel="shortcut icon">
+    <link href="resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
+    <link href="resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
+    <link rel="stylesheet" href="resources/styles/application.css">
+    <link rel="stylesheet" href="resources/styles/devices.css">
+    <link rel="stylesheet" href="resources/styles/sprites.css">
+  </head>
+  <body class="page-section page-sidebar">
+    <header class="site-header">
+      <div class="row"><a href="home.html" title="Back to home" class="site-logo"><img src="resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
+        <nav class="site-nav">
+          <ul>
+            <li><a href="quick-start.html" title="Quick start">QUICK START</a></li>
+            <li class="active"><a href="documentation.html" title="Doc">DOC</a></li>
+            <li><a href="modules.html" title="Modules">MODULES</a></li>
+            <li><a href="help-support.html" title="Help &amp; Support">HELP & SUPPORT</a></li>
+            <li><a href="faqs.html" title="FAQ's">FAQ's</a></li>
+            <li><a href="#" title="API Docs">API DOCS</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main role="main" class="site-content">
+      <div class="section-title"> 
+        <div class="row">
+          <h1>Documentation</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="section-sidebar">
+          <div class="show-mobile menu-open">Philosophy: Do more, more easily</div>
+          <ul>
+            <li class="active"> <a href="#philosophy" title="#">Philosophy: Do more, more easily</a></li>
+            <li> <a href="#config" title="#">Config, environment and logging</a>
+              <ul>
+                <li> <a href="#" title="#">application.conf</a></li>
+                <li> <a href="#" title="#">Injecting properties</a></li>
+                <li> <a href="#" title="#">Special properties</a></li>
+                <li> <a href="#" title="#">Config precedence</a></li>
+                <li> <a href="#" title="#">Logging</a></li>
+              </ul>
+            </li>
+            <li> <a href="#" title="#">Modules</a></li>
+            <li> <a href="#routes" title="#">Routes</a>
+              <ul>
+                <li> <a href="#" title="#">Creating routes</a></li>
+                <li> <a href="#" title="#">Route handler</a></li>
+                <li> <a href="#" title="#">Path patterns</a></li>
+                <li> <a href="#" title="#">Static files</a></li>
+                <li> <a href="#" title="#">Precedence and order</a></li>
+                <li> <a href="#" title="#">Request handling</a></li>
+                <li> <a href="#" title="#">MVC routes</a></li>
+                <li> <a href="#" title="#">Dynamic / Advanced routing</a></li>
+                <li> <a href="#" title="#">Async routes</a></li>
+              </ul>
+            </li>
+            <li> <a href="#" title="#">Request</a></li>
+            <li> <a href="#" title="#">Response</a></li>
+            <li> <a href="#" title="#">Session</a></li>
+            <li> <a href="#" title="#">Error handling</a></li>
+            <li> <a href="#" title="#">Parser and renderer</a></li>
+            <li> <a href="#" title="#">Web sockets</a></li>
+            <li> <a href="#" title="#">Cors</a></li>
+            <li> <a href="#" title="#">Javascript</a></li>
+            <li> <a href="#" title="#">https</a></li>
+            <li> <a href="#" title="#">Appendix: jooby.conf</a></li>
+            <li> <a href="#" title="#">Appendix: mime.properties</a></li>
+          </ul>
+        </div>
+        <div class="section-content">
+          <div id="philosophy" class="datalist active">
+            <div class="datalist-title">
+              <h2>philosophy: do more, more easily</h2>
+            </div>
+            <div class="datalist-content">
+              <ul>
+                <li> 
+                  <p>Simple and effective programming model for building small and large scale web applications.</p>
+                </li>
+                <li> 
+                  <p>Build with developer productive in mind.</p>
+                </li>
+                <li> 
+                  <p>Plain Java DSL for routes (no xml, or similar).</p>
+                </li>
+                <li> 
+                  <p>Reflection, annotations and dependency injection are keep to minimum and in some cases it is completely optional.</p>
+                </li>
+                <li>
+                  <p>No classpath hell, default deployment model uses a normal JVM bootstrap.</p>
+                </li>
+                <li> 
+                  <p>Modules are easy to use and they do as less as possible.</p>
+                </li>
+              </ul>
+              <p>In one word? Jooby keeps it simple but yet powerful.</p>
+              <div class="highlight">
+                <div class="copy-bar"><span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+                </div>
+                <pre><code data-lang="java" class="language-java"><span class="kn">import </span><span class="nn">org.jooby.Jooby</span><span class="o">;</span><br><br><span class="kd">public </span><span class="kd">class </span><span class="nc">App </span><span class="kd">extends </span><span class="n">Jooby </span><span class="o">{</span><br><br><span class="o">  {</span><br><span class="n">    get</span><span class="o">(</span><span class="s">"/"</span><span class="o">, </span><span class="o">() </span><span class="o">-&gt; </span><span class="s">"Hey Jooby!"</span><span class="o">);</span><br><span class="o">  }</span><br><br><span class="kd">  public </span><span class="kd">static </span><span class="kt">void </span><span class="nf">main</span><span class="o">(</span><span class="kd">final </span><span class="n">String</span><span class="o">[] </span><span class="n">args</span><span class="o">) </span><span class="kd">throws </span><span class="n">Exception </span><span class="o">{</span><br><span class="k">    new </span><span class="nf">App</span><span class="o">().</span><span class="na">start</span><span class="o">(</span><span class="n">args</span><span class="o">);</span><br><span class="o">  }</span><br><span class="o">}</span></code></pre>
+              </div>
+            </div>
+          </div>
+          <div id="config" class="datalist active">
+            <div class="datalist-title">
+              <h2>Config, environment and logging</h2>
+            </div>
+            <div class="datalist-content">
+              <p>Jooby delegates configuration management to <a href="#" title="#">TypeSafe Config</a>. If you aren't familiar with <a href="#" title="#">TypeSafe Config</a> please take a few minutes to discover what <a href="#" title="#">TypeSafe Config</a> can do for you.</p>
+              <h3>application.conf</h3>
+              <p>By defaults Jooby will attempt to load an <code>application.conf</code> file from root of classpath. Inside the file you can add/override any property you want.</p>
+              <hr>
+              <h3>Injecting properties</h3>
+              <p>Any property can be injected using the <code>javax.inject.Named</code> annotation and automatic type conversion is provided when a type:</p>
+              <ul>
+                <li> 
+                  <p><strong>1)</strong> Is a primitive, primitive wrapper or String</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Is an enum</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Has a public constructor that accepts a single String argument</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Has a static method valueOf that accepts a single String argument</p>
+                </li>
+              </ul>
+              <div class="highlight">
+                <div class="copy-bar"><span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+                </div>
+                <pre><code data-lang="bash" class="language-bash">//ADD CODE//</code></pre>
+              </div>
+              <h3>Injecting properties</h3>
+              <p>Any property can be injected using the <code>javax.inject.Named</code> annotation and automatic type conversion is provided when a type:</p>
+              <hr>
+            </div>
+          </div>
+          <div class="datalist active">
+            <div class="datalist-title">
+              <h2>philosophy: do more, more easily</h2>
+            </div>
+            <div class="datalist-content">
+              <ul>
+                <li> 
+                  <p>Simple and effective programming model for building small and large scale web applications.</p>
+                </li>
+                <li> 
+                  <p>Build with developer productive in mind.</p>
+                </li>
+                <li> 
+                  <p>Plain Java DSL for routes (no xml, or similar).</p>
+                </li>
+                <li> 
+                  <p>Reflection, annotations and dependency injection are keep to minimum and in some cases it is completely optional.</p>
+                </li>
+                <li>
+                  <p>No classpath hell, default deployment model uses a normal JVM bootstrap.</p>
+                </li>
+                <li> 
+                  <p>Modules are easy to use and they do as less as possible.</p>
+                </li>
+              </ul>
+              <p>In one word? Jooby keeps it simple but yet powerful.</p>
+            </div>
+          </div>
+          <div class="datalist active">
+            <div class="datalist-title">
+              <h2>Config, environment and logging</h2>
+            </div>
+            <div class="datalist-content">
+              <p>Jooby delegates configuration management to <a href="#" title="#">TypeSafe Config</a>. If you aren't familiar with <a href="#" title="#">TypeSafe Config</a> please take a few minutes to discover what <a href="#" title="#">TypeSafe Config</a> can do for you.</p>
+              <h3>application.conf</h3>
+              <p>By defaults Jooby will attempt to load an <code>application.conf</code> file from root of classpath. Inside the file you can add/override any property you want.</p>
+              <hr>
+              <h3>Injecting properties</h3>
+              <p>Any property can be injected using the <code>javax.inject.Named</code> annotation and automatic type conversion is provided when a type:</p>
+              <ul>
+                <li> 
+                  <p><strong>1)</strong> Is a primitive, primitive wrapper or String</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Is an enum</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Has a public constructor that accepts a single String argument</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Has a static method valueOf that accepts a single String argument</p>
+                </li>
+              </ul>
+              <hr>
+            </div>
+          </div>
+          <div class="datalist active">
+            <div class="datalist-title">
+              <h2>philosophy: do more, more easily</h2>
+            </div>
+            <div class="datalist-content">
+              <ul>
+                <li> 
+                  <p>Simple and effective programming model for building small and large scale web applications.</p>
+                </li>
+                <li> 
+                  <p>Build with developer productive in mind.</p>
+                </li>
+                <li> 
+                  <p>Plain Java DSL for routes (no xml, or similar).</p>
+                </li>
+                <li> 
+                  <p>Reflection, annotations and dependency injection are keep to minimum and in some cases it is completely optional.</p>
+                </li>
+                <li>
+                  <p>No classpath hell, default deployment model uses a normal JVM bootstrap.</p>
+                </li>
+                <li> 
+                  <p>Modules are easy to use and they do as less as possible.</p>
+                </li>
+              </ul>
+              <p>In one word? Jooby keeps it simple but yet powerful.</p>
+            </div>
+          </div>
+          <div class="datalist active">
+            <div class="datalist-title">
+              <h2>Config, environment and logging</h2>
+            </div>
+            <div class="datalist-content">
+              <p>Jooby delegates configuration management to <a href="#" title="#">TypeSafe Config</a>. If you aren't familiar with <a href="#" title="#">TypeSafe Config</a> please take a few minutes to discover what <a href="#" title="#">TypeSafe Config</a> can do for you.</p>
+              <h3>application.conf</h3>
+              <p>By defaults Jooby will attempt to load an <code>application.conf</code> file from root of classpath. Inside the file you can add/override any property you want.</p>
+              <hr>
+              <h3>Injecting properties</h3>
+              <p>Any property can be injected using the <code>javax.inject.Named</code> annotation and automatic type conversion is provided when a type:</p>
+              <ul>
+                <li> 
+                  <p><strong>1)</strong> Is a primitive, primitive wrapper or String</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Is an enum</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Has a public constructor that accepts a single String argument</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Has a static method valueOf that accepts a single String argument</p>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="datalist active">
+            <div class="datalist-title">
+              <h2>philosophy: do more, more easily</h2>
+            </div>
+            <div class="datalist-content">
+              <ul>
+                <li> 
+                  <p>Simple and effective programming model for building small and large scale web applications.</p>
+                </li>
+                <li> 
+                  <p>Build with developer productive in mind.</p>
+                </li>
+                <li> 
+                  <p>Plain Java DSL for routes (no xml, or similar).</p>
+                </li>
+                <li> 
+                  <p>Reflection, annotations and dependency injection are keep to minimum and in some cases it is completely optional.</p>
+                </li>
+                <li>
+                  <p>No classpath hell, default deployment model uses a normal JVM bootstrap.</p>
+                </li>
+                <li> 
+                  <p>Modules are easy to use and they do as less as possible.</p>
+                </li>
+              </ul>
+              <p>In one word? Jooby keeps it simple but yet powerful.</p>
+            </div>
+          </div>
+          <div id="routes" class="datalist active">
+            <div class="datalist-title">
+              <h2>Routes</h2>
+            </div>
+            <div class="datalist-content">
+              <p>Jooby delegates configuration management to <a href="#" title="#">TypeSafe Config</a>. If you aren't familiar with <a href="#" title="#">TypeSafe Config</a> please take a few minutes to discover what <a href="#" title="#">TypeSafe Config</a> can do for you.</p>
+              <h3>application.conf</h3>
+              <p>By defaults Jooby will attempt to load an <code>application.conf</code> file from root of classpath. Inside the file you can add/override any property you want.</p>
+              <hr>
+              <h3>Injecting properties</h3>
+              <p>Any property can be injected using the <code>javax.inject.Named</code> annotation and automatic type conversion is provided when a type:</p>
+              <ul>
+                <li> 
+                  <p><strong>1)</strong> Is a primitive, primitive wrapper or String</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Is an enum</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Has a public constructor that accepts a single String argument</p>
+                </li>
+                <li> 
+                  <p><strong>1)</strong> Has a static method valueOf that accepts a single String argument</p>
+                </li>
+              </ul>
+              <hr>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="row">
+        <p class="pull-left"> <a href="home.html" title="Back to home">Jooby</a> is created and maintained by <a href="#" title="#">Edgar Espina</a></p>
+        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
+        <div class="follow-us pull-right">
+          <p>Follow us</p><a href="#" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="#" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
+        </div>
+      </div>
+    </footer>
+    <!--localhost:35729/livereload.js BORRAR EN PRODUCCION-->
+    <script src="http://localhost:35729/livereload.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
+    <script src="resources/scripts/libs/swiper.min.js"></script>
+    <script src="resources/scripts/application.js"></script>
+  </body>
+</html>
