@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'kramdown'
-require 'coderay'
 require 'rouge'
 
 def md_to_html(text)

@@ -37,10 +37,12 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  public static void main(final String[] args) throws IOException {
+  public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
     Path md = process(basedir.resolve("md"));
     Path outDir = Paths.get("target", "gh-pages");
+    cleanDir(outDir);
+    checkout(outDir);
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "templates").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
@@ -61,12 +63,14 @@ public class JoobySiteGenerator {
           String[] html = markdownToHtml(path.toString(), main);
           data.put("main", html[0]);
           data.put("toc", html[1]);
-          data.put("page-header", html[2]);
+          data.put("md", html[2]);
+          data.put("page-header", html[3]);
           Path output = Paths.get(outDir.resolve(path).toString()
               .replace("README.md", "index.html")
               .replace("index.md", "index.html"));
           output.toFile().getParentFile().mkdirs();
-          Files.write(output, Arrays.asList(template.apply(data).trim()), StandardCharsets.UTF_8);
+          Files.write(output, Arrays.asList(finalize(template.apply(data).trim())),
+              StandardCharsets.UTF_8);
         } catch (FileNotFoundException ex) {
           System.err.println("missing " + filename);
         }
@@ -82,6 +86,60 @@ public class JoobySiteGenerator {
         asset.toFile().getParentFile().mkdirs();
         if (!asset.toFile().exists()) {
           Files.copy(path, asset, StandardCopyOption.REPLACE_EXISTING);
+        }
+      }
+    }
+  }
+
+  private static String finalize(final String html) {
+    Document doc = Jsoup.parse(html);
+    // force external links to open in a new page:
+    for (Element a : doc.select("a")) {
+      String href = a.attr("href");
+      boolean abs = href.startsWith("http://") || href.startsWith("https://");
+      if (abs && !href.startsWith("http://jooby.org")) {
+        a.attr("target", "_blank");
+      }
+    }
+
+    // highlight copy bar
+    doc.select("div.highlighter-rouge").prepend("<div class=\"copy-bar\">\n"
+        + "<span class=\"icon-clipboard-big copy-button octicon octicon-clippy\" "
+        + "title=\"copy to clipboard\"></span>"
+        + "</div>");
+
+    doc.select(".highlighter-rouge").addClass("codehilite");
+
+    // remove br
+    doc.select("br").remove();
+
+    return doc.toString();
+  }
+
+  static void checkout(final Path outDir) throws Exception {
+    File dir = outDir.toFile();
+    dir.mkdirs();
+    Process git = new ProcessBuilder("git", "clone", "-b", "gh-pages", "--single-branch",
+        "git@github.com:jooby-project/jooby.git", ".")
+            .directory(dir)
+            .start();
+    git.waitFor();
+    git.destroy();
+  }
+
+  private static void cleanDir(final Path outDir) throws IOException {
+    if (outDir.toFile().exists()) {
+      try (Stream<Path> files = Files.walk(outDir)) {
+        Iterator<Path> it = files.iterator();
+        while (it.hasNext()) {
+          File file = it.next().toAbsolutePath().toFile();
+          if (!file.equals(outDir.toFile())) {
+            if (file.isDirectory()) {
+              cleanDir(file.toPath());
+            } else {
+              file.delete();
+            }
+          }
         }
       }
     }
@@ -123,6 +181,7 @@ public class JoobySiteGenerator {
       resetH.accept(2);
       resetH.accept(1);
     }
+    String raw = doc.select("body").html();
 
     StringBuilder toc = new StringBuilder();
     String title = null;
@@ -174,12 +233,7 @@ public class JoobySiteGenerator {
     }
     toc.append("\n</ul>");
 
-    // highlight copy bar
-    doc.select("div.highlighter-rouge").prepend("<div class=\"copy-bar\">\n"
-        + "<span class=\"icon-clipboard-big copy-button octicon octicon-clippy\" "
-        + "title=\"copy to clipboard\"></span>"
-        + "</div>");
-    return new String[]{doc.select("body").html(), toc.toString(), title };
+    return new String[]{doc.select("body").html(), toc.toString(), raw, title };
   }
 
   private static String id(final String text) {
@@ -191,6 +245,7 @@ public class JoobySiteGenerator {
     try (Stream<Path> walk = Files.walk(source)
         .filter(p -> p.getFileName().toString().endsWith(".md"))) {
       Path output = Paths.get("target", "md");
+      cleanDir(output);
       // collect vars
       Map<String, String> links = links();
       Map<String, String> vars = new HashMap<>(links);
@@ -289,6 +344,18 @@ public class JoobySiteGenerator {
     links.put(
         "jetty_server",
         "[Jetty](/doc/jetty)");
+
+    links.put(
+        "freemarker",
+        "[Freemarker](http://freemarker.org)");
+
+    links.put(
+        "gson",
+        "[Gson](https://github.com/google/gson)");
+
+    links.put(
+        "jackson",
+        "[Jackson](https://github.com/FasterXML/jackson)");
 
     links.put(
         "rx",

@@ -1,4 +1,4 @@
-{{#partial "main-class"}}page-section page-sidebar{{/partial}}
+{{#partial "main-class"}}page-section{{/partial}}
 {{#partial "quickstart"}}active{{/partial}}
 {{#partial "main"}}
 <div class="section-title"> 
@@ -7,12 +7,8 @@
   </div>
 </div>
 <div class="row">
-  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
-    <div class="show-mobile menu-open">{{page-header}}</div>
-    {{&toc}}
-  </div>
   <div class="section-content">
-  {{&main}}
+  {{&md}}
   </div>
 </div>
 {{/partial}}
