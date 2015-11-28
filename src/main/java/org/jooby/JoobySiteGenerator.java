@@ -84,7 +84,7 @@ public class JoobySiteGenerator {
         Path path = it.next();
         Path asset = outDir.resolve("resources").resolve(staticFiles.relativize(path));
         asset.toFile().getParentFile().mkdirs();
-        if (!asset.toFile().exists()) {
+        if (!asset.toFile().isDirectory()) {
           Files.copy(path, asset, StandardCopyOption.REPLACE_EXISTING);
         }
       }
