@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,16 +42,17 @@ public class JoobySiteGenerator {
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
-    Path md = process(basedir.resolve("md"));
     Path outDir = Paths.get("target", "gh-pages");
-    cleanDir(outDir);
-    checkout(outDir);
+    Future<?> checkout = checkout(outDir);
+    Path md = process(basedir.resolve("md"));
     Handlebars hbs = new Handlebars(
-        new FileTemplateLoader(Paths.get("src", "main", "templates").toFile(), ".html"));
+        new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
       String name = p.getFileName().toString();
       return (name.equals("README.md") && p.getNameCount() > 1) || name.equals("index.md");
     }).sorted()) {
+      // wait for checkout
+      checkout.get();
 
       Iterator<Path> it = walk.iterator();
       while (it.hasNext()) {
@@ -56,8 +60,7 @@ public class JoobySiteGenerator {
         Path path = md.relativize(abs);
         String filename = path.toString().replace(".md", "").replace("README", "index");
         try {
-          String main = Files.readAllLines(abs, StandardCharsets.UTF_8).stream()
-              .collect(Collectors.joining("\n"));
+          String main = readFile(abs);
           Template template = template(hbs, filename);
           Map<String, Object> data = new HashMap<>();
           String[] html = markdownToHtml(path.toString(), main);
@@ -65,30 +68,59 @@ public class JoobySiteGenerator {
           data.put("toc", html[1]);
           data.put("md", html[2]);
           data.put("page-header", html[3]);
+          data.put("year", LocalDate.now().getYear());
+          data.put("infinite", "&infin;");
           Path output = Paths.get(outDir.resolve(path).toString()
               .replace("README.md", "index.html")
               .replace("index.md", "index.html"));
           output.toFile().getParentFile().mkdirs();
-          Files.write(output, Arrays.asList(finalize(template.apply(data).trim())),
-              StandardCharsets.UTF_8);
+          write(output, finalize(template.apply(data).trim()));
         } catch (FileNotFoundException ex) {
           System.err.println("missing " + filename);
         }
       }
     }
     // static files
-    Path staticFiles = Paths.get("src", "site-original", "resources");
-    try (Stream<Path> assets = Files.walk(staticFiles)) {
+    System.out.println("moving static resources: ");
+    Path staticFiles = Paths.get("src", "main", "resources", "static-site", "resources");
+    try (Stream<Path> assets = Files.walk(staticFiles)
+        .filter(p -> !p.toString().endsWith(".DS_Store"))) {
       Iterator<Path> it = assets.iterator();
       while (it.hasNext()) {
         Path path = it.next();
         Path asset = outDir.resolve("resources").resolve(staticFiles.relativize(path));
+        System.out.println("  " + asset);
         asset.toFile().getParentFile().mkdirs();
-        if (!asset.toFile().isDirectory()) {
-          Files.copy(path, asset, StandardCopyOption.REPLACE_EXISTING);
+        if (asset.toFile().isFile()) {
+          copy(path, asset);
         }
       }
     }
+  }
+
+  private static void write(final Path path, final String content) throws IOException {
+    if (path.toFile().exists()) {
+      String left = readFile(path);
+      String r = content.trim();
+      if (!left.equals(r)) {
+        Files.write(path, Arrays.asList(r), StandardCharsets.UTF_8);
+      }
+    } else {
+      Files.write(path, Arrays.asList(content.trim()), StandardCharsets.UTF_8);
+    }
+  }
+
+  private static void copy(final Path source, final Path dest) throws IOException {
+    if (dest.toFile().isFile()) {
+      byte[] b1 = Files.readAllBytes(source);
+      byte[] b2 = Files.readAllBytes(dest);
+      if (!Arrays.equals(b1, b2)) {
+        Files.write(dest, b1);
+      }
+    } else {
+      Files.copy(source, dest);
+    }
+
   }
 
   private static String finalize(final String html) {
@@ -96,9 +128,13 @@ public class JoobySiteGenerator {
     // force external links to open in a new page:
     for (Element a : doc.select("a")) {
       String href = a.attr("href");
-      boolean abs = href.startsWith("http://") || href.startsWith("https://");
-      if (abs && !href.startsWith("http://jooby.org")) {
-        a.attr("target", "_blank");
+      if (href != null && href.length() > 0) {
+        href = href.replace("https://github.com/jooby-project/jooby/tree/master/jooby-", "/doc/");
+        boolean abs = href.startsWith("http://") || href.startsWith("https://");
+        if (abs && !href.startsWith("http://jooby.org")) {
+          a.attr("target", "_blank");
+        }
+        a.attr("href", href);
       }
     }
 
@@ -116,15 +152,24 @@ public class JoobySiteGenerator {
     return doc.toString();
   }
 
-  static void checkout(final Path outDir) throws Exception {
-    File dir = outDir.toFile();
-    dir.mkdirs();
-    Process git = new ProcessBuilder("git", "clone", "-b", "gh-pages", "--single-branch",
-        "git@github.com:jooby-project/jooby.git", ".")
-            .directory(dir)
-            .start();
-    git.waitFor();
-    git.destroy();
+  static Future<?> checkout(final Path outDir) throws Exception {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    return executor.submit(() -> {
+      try {
+        cleanDir(outDir);
+        System.out.println("git clone -b gh-pages git@github.com:jooby-project/jooby.git");
+        File dir = outDir.toFile();
+        dir.mkdirs();
+        Process git = new ProcessBuilder("git", "clone", "-b", "gh-pages", "--single-branch",
+            "git@github.com:jooby-project/jooby.git", ".")
+                .directory(dir)
+                .start();
+        git.waitFor();
+        git.destroy();
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    });
   }
 
   private static void cleanDir(final Path outDir) throws IOException {
@@ -136,6 +181,7 @@ public class JoobySiteGenerator {
           if (!file.equals(outDir.toFile())) {
             if (file.isDirectory()) {
               cleanDir(file.toPath());
+              file.delete();
             } else {
               file.delete();
             }
@@ -242,12 +288,13 @@ public class JoobySiteGenerator {
 
   private static Path process(final Path source) throws IOException {
     Path basedir = source.toFile().getParentFile().toPath();
+    System.out.println("processing doc (*.md)");
     try (Stream<Path> walk = Files.walk(source)
         .filter(p -> p.getFileName().toString().endsWith(".md"))) {
       Path output = Paths.get("target", "md");
       cleanDir(output);
       // collect vars
-      Map<String, String> links = links();
+      Map<String, String> links = vars();
       Map<String, String> vars = new HashMap<>(links);
       vars.put("toc.md", "");
       Iterator<Path> it = walk.iterator();
@@ -256,12 +303,10 @@ public class JoobySiteGenerator {
         Path path = it.next();
         paths.add(path);
         // content
-        String main = Files.readAllLines(path, StandardCharsets.UTF_8).stream()
-            .collect(Collectors.joining("\n"));
+        String main = readFile(path);
 
         String appendix = appendix(basedir, path);
         main = main.replace("{{appendix}}", appendix);
-        main = main.replace("https://github.com/jooby-project/jooby/tree/master/jooby-", "/doc/");
 
         if (main.startsWith("---")) {
           main = main.substring(main.indexOf("---", 1) + "---".length());
@@ -275,35 +320,35 @@ public class JoobySiteGenerator {
       it = paths.iterator();
       while (it.hasNext()) {
         Path path = it.next();
-        String main = toString(path);
+        String main = readFile(path);
         if (main.startsWith("---")) {
           main = main.substring(main.indexOf("---", 1) + "---".length());
         }
 
         String appendix = appendix(basedir, path);
         main = main.replace("{{appendix}}", appendix);
-        main = main.replace("https://github.com/jooby-project/jooby/tree/master/jooby-", "/doc/");
 
         for (Entry<String, String> var : vars.entrySet()) {
           main = main.replace("{{" + var.getKey() + "}}", var.getValue());
         }
         Path md = output.resolve(source.relativize(path));
         md.toFile().getParentFile().mkdirs();
-        System.out.println("md: " + md);
-        Files.write(md, Arrays.asList(main));
+        System.out.println("  done: " + md);
+        write(md, main);
       }
       return output;
     }
   }
 
-  private static String toString(final Path path) {
-    return toString(path, "\n");
+  private static String readFile(final Path path) {
+    return readFile(path, "\n");
   }
 
-  private static String toString(final Path path, final String nl) {
+  private static String readFile(final Path path, final String nl) {
     try {
       return Files.readAllLines(path, StandardCharsets.UTF_8).stream()
-          .collect(Collectors.joining(nl));
+          .collect(Collectors.joining(nl))
+          .trim();
     } catch (IOException ex) {
       throw new IllegalStateException(ex);
     }
@@ -323,7 +368,7 @@ public class JoobySiteGenerator {
       return Files.walk(rsrc)
           .filter(p -> p.toString().endsWith(".conf") || p.toString().endsWith(".properties"))
           .map(p -> level + " " + p.getFileName().toString() + "\n\n```properties\n"
-              + toString(p, "\n\n").replaceAll("\n\n+", "\n\n")
+              + readFile(p, "\n\n").replaceAll("\n\n+", "\n\n")
               + "\n```\n\n")
           .collect(Collectors.joining("\n"));
     } catch (NoSuchFileException ex) {
@@ -331,8 +376,11 @@ public class JoobySiteGenerator {
     }
   }
 
-  private static Map<String, String> links() {
+  private static Map<String, String> vars() {
     Map<String, String> links = new HashMap<>();
+
+    links.put("year", LocalDate.now().getYear() + "");
+
     links.put("netty_server", "[Netty](/doc/netty)");
 
     links.put("undertow_server", "[Undertow](/doc/undertow)");
