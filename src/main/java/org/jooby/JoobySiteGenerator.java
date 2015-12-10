@@ -16,9 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,7 +40,7 @@ public class JoobySiteGenerator {
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
     Path outDir = Paths.get("target", "gh-pages");
-    Future<?> checkout = checkout(outDir);
+    checkout(outDir);
     Path md = process(basedir.resolve("md"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
@@ -51,9 +48,6 @@ public class JoobySiteGenerator {
       String name = p.getFileName().toString();
       return (name.equals("README.md") && p.getNameCount() > 1) || name.equals("index.md");
     }).sorted()) {
-      // wait for checkout
-      checkout.get();
-
       Iterator<Path> it = walk.iterator();
       while (it.hasNext()) {
         Path abs = it.next();
@@ -75,6 +69,16 @@ public class JoobySiteGenerator {
               .replace("index.md", "index.html"));
           output.toFile().getParentFile().mkdirs();
           write(output, finalize(template.apply(data).trim()));
+
+          if (path.toString().endsWith("README.md")) {
+            Path outputgh = basedir.resolve(path.toString().replace("doc/", "jooby-"))
+                .toAbsolutePath()
+                .normalize();
+            File ghdir = outputgh.toFile().getParentFile();
+            if (ghdir.exists()) {
+              write(outputgh, main);
+            }
+          }
         } catch (FileNotFoundException ex) {
           System.err.println("missing " + filename);
         }
@@ -152,24 +156,17 @@ public class JoobySiteGenerator {
     return doc.toString();
   }
 
-  static Future<?> checkout(final Path outDir) throws Exception {
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    return executor.submit(() -> {
-      try {
-        cleanDir(outDir);
-        System.out.println("git clone -b gh-pages git@github.com:jooby-project/jooby.git");
-        File dir = outDir.toFile();
-        dir.mkdirs();
-        Process git = new ProcessBuilder("git", "clone", "-b", "gh-pages", "--single-branch",
-            "git@github.com:jooby-project/jooby.git", ".")
-                .directory(dir)
-                .start();
-        git.waitFor();
-        git.destroy();
-      } catch (Exception ex) {
-        ex.printStackTrace();
-      }
-    });
+  static void checkout(final Path outDir) throws Exception {
+    cleanDir(outDir);
+    System.out.println("git clone -b gh-pages git@github.com:jooby-project/jooby.git");
+    File dir = outDir.toFile();
+    dir.mkdirs();
+    Process git = new ProcessBuilder("git", "clone", "-b", "gh-pages", "--single-branch",
+        "git@github.com:jooby-project/jooby.git", ".")
+            .directory(dir)
+            .start();
+    git.waitFor();
+    git.destroy();
   }
 
   private static void cleanDir(final Path outDir) throws IOException {
@@ -385,9 +382,11 @@ public class JoobySiteGenerator {
 
     links.put("undertow_server", "[Undertow](/doc/undertow)");
 
-    links.put("site", "/");
+    links.put("site", "http://jooby.org");
 
-    links.put("Jooby", "[Jooby](/)");
+    links.put("Jooby", "[Jooby](http://jooby.org)");
+
+    links.put("templates", "[templates](https://github.com/jooby-starters)");
 
     links.put(
         "jetty_server",
@@ -573,7 +572,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "0.11.2";
+    return "0.12.0";
   }
 
 }
