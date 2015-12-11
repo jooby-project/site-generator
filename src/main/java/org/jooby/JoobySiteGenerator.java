@@ -175,7 +175,7 @@ public class JoobySiteGenerator {
         Iterator<Path> it = files.iterator();
         while (it.hasNext()) {
           File file = it.next().toAbsolutePath().toFile();
-          if (!file.equals(outDir.toFile())) {
+          if (!file.equals(outDir.toAbsolutePath().toFile())) {
             if (file.isDirectory()) {
               cleanDir(file.toPath());
               file.delete();
