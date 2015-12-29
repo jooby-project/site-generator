@@ -3,6 +3,7 @@ package org.jooby;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -16,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,6 +29,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.comments.Comment;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
@@ -37,11 +46,14 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
+  static boolean release = false;
+
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
     Path outDir = Paths.get("target", "gh-pages");
     checkout(outDir);
     Path md = process(basedir.resolve("md"));
+    // apidoc(basedir, md);
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
@@ -70,7 +82,7 @@ public class JoobySiteGenerator {
           output.toFile().getParentFile().mkdirs();
           write(output, finalize(template.apply(data).trim()));
 
-          if (path.toString().endsWith("README.md")) {
+          if (release && path.toString().endsWith("README.md")) {
             Path outputgh = basedir.resolve(path.toString().replace("doc/", "jooby-"))
                 .toAbsolutePath()
                 .normalize();
@@ -99,6 +111,74 @@ public class JoobySiteGenerator {
           copy(path, asset);
         }
       }
+    }
+  }
+
+  private static void apidoc(final Path basedir, final Path md) throws Exception {
+    Path src = basedir.resolve(Paths.get("jooby", "src", "main", "java", "org", "jooby"))
+        .normalize();
+    try (Stream<Path> walk = Files.walk(src).filter(p -> {
+      String name = p.getFileName().toString();
+      return name.endsWith(".java") && p.toString().indexOf("internal") == -1;
+    }).sorted()) {
+      Iterator<Path> files = walk.iterator();
+      StringBuilder output = new StringBuilder();
+      while (files.hasNext()) {
+        Path file = files.next();
+        try {
+          StringBuilder javadoc = new StringBuilder();
+          CompilationUnit unit = JavaParser.parse(file.toFile());
+          TypeDeclaration type = unit.getTypes().get(0);
+          boolean isInterface = (type instanceof ClassOrInterfaceDeclaration
+              && ((ClassOrInterfaceDeclaration) type).isInterface());
+          Comment comment = type.getComment();
+          String h1 = "<h1>" + type.getName() + "</h1>\n";
+          javadoc.append(ToMarkdown.toMd(h1, unit.toString())).append("\n\n");
+          if (comment != null) {
+            javadoc.append(ToMarkdown.toMd(comment.toString(), unit.toString(), 1)).append("\n\n");
+          }
+          javadoc.append("\n");
+          List<BodyDeclaration> members = type.getMembers();
+          Map<String, List<MethodDeclaration>> methods = new TreeMap<>();
+          for (BodyDeclaration m : members) {
+            if (m instanceof MethodDeclaration) {
+              MethodDeclaration method = (MethodDeclaration) m;
+              if (Modifier.isPublic(method.getModifiers()) || isInterface) {
+                List<MethodDeclaration> overloaded = methods.get(method.getName());
+                if (overloaded == null) {
+                  overloaded = new ArrayList<>();
+                  methods.put(method.getName(), overloaded);
+                }
+                overloaded.add(method);
+              }
+            }
+          }
+          for (Entry<String, List<MethodDeclaration>> e : methods.entrySet()) {
+            String name = e.getKey();
+            String m1 = "<h2>" + name + "</h2>\n";
+            javadoc.append(ToMarkdown.toMd(m1, unit.toString())).append("\n");
+            for (MethodDeclaration method : e.getValue()) {
+              Comment mc = method.getComment();
+              if (mc != null) {
+                javadoc.append(ToMarkdown.toMd(mc.toString().replace("@return ", ""),
+                    unit.toString(), 1)).append("\n\n");
+              }
+              javadoc.append(ToMarkdown.toMd("<pre>"
+                  + method.getDeclarationAsString().replace("<", "&lt;").replace(">", "&gt;")
+                  + "</pre>",
+                  unit.toString())).append("\n\n");
+            }
+          }
+          javadoc.append("\n");
+          output.append(javadoc);
+        } catch (Exception ex) {
+          System.err.println("Fail to parse " + file);
+          ex.printStackTrace();
+        }
+      }
+      Path apidocs = md.resolve("apidocs").resolve("index.md");
+      apidocs.toFile().getParentFile().mkdirs();
+      write(apidocs, output.toString());
     }
   }
 
@@ -330,8 +410,8 @@ public class JoobySiteGenerator {
         }
         Path md = output.resolve(source.relativize(path));
         md.toFile().getParentFile().mkdirs();
-        System.out.println("  done: " + md);
         write(md, main);
+        System.out.println("  done: " + md);
       }
       return output;
     }
@@ -377,6 +457,8 @@ public class JoobySiteGenerator {
     Map<String, String> links = new HashMap<>();
 
     links.put("year", LocalDate.now().getYear() + "");
+
+    links.put("metrics", "[Metrics](http://metrics.dropwizard.io)");
 
     links.put("netty_server", "[Netty](/doc/netty)");
 
@@ -478,7 +560,7 @@ public class JoobySiteGenerator {
 
     links.put(
         "defdocs",
-        "/apidocs/org/jooby");
+        "/apidocs");
 
     links.put(
         "maven",
@@ -572,7 +654,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "0.12.0";
+    return "0.13.0";
   }
 
 }
