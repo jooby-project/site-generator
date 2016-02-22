@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,6 +40,7 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+import com.google.common.base.Splitter;
 
 public class JoobySiteGenerator {
 
@@ -46,19 +48,21 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  static boolean release = false;
+  static boolean release = true;
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
-    Path outDir = Paths.get("target", "gh-pages");
-    checkout(outDir);
+    Path target = Paths.get("target");
+    Path outDir = target.resolve("gh-pages");
+     checkout(outDir);
     Path md = process(basedir.resolve("md"));
     // apidoc(basedir, md);
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
       String name = p.getFileName().toString();
-      return (name.equals("README.md") && p.getNameCount() > 1) || name.equals("index.md");
+      return (name.equals("README.md") && p.getNameCount() > 1) || name.equals("index.md")
+          || name.equals("spec.md");
     }).sorted()) {
       Iterator<Path> it = walk.iterator();
       while (it.hasNext()) {
@@ -67,6 +71,7 @@ public class JoobySiteGenerator {
         String filename = path.toString().replace(".md", "").replace("README", "index");
         try {
           String main = readFile(abs);
+
           Template template = template(hbs, filename);
           Map<String, Object> data = new HashMap<>();
           String[] html = markdownToHtml(path.toString(), main);
@@ -74,11 +79,14 @@ public class JoobySiteGenerator {
           data.put("toc", html[1]);
           data.put("md", html[2]);
           data.put("page-header", html[3]);
+          data.put("stitle", html[4]);
+          data.put("sdesc", html[5]);
           data.put("year", LocalDate.now().getYear());
           data.put("infinite", "&infin;");
           Path output = Paths.get(outDir.resolve(path).toString()
               .replace("README.md", "index.html")
-              .replace("index.md", "index.html"));
+              .replace("index.md", "index.html")
+              .replace("spec.md", "spec.html"));
           output.toFile().getParentFile().mkdirs();
           write(output, finalize(template.apply(data).trim()));
 
@@ -90,6 +98,10 @@ public class JoobySiteGenerator {
             if (ghdir.exists()) {
               write(outputgh, main);
             }
+          }
+          // guides
+          if (path.toString().contains("guides") && !path.toString().equals("guides/index.md")) {
+            // guide(target, path, main);
           }
         } catch (FileNotFoundException ex) {
           System.err.println("missing " + filename);
@@ -107,14 +119,14 @@ public class JoobySiteGenerator {
         Path asset = outDir.resolve("resources").resolve(staticFiles.relativize(path));
         System.out.println("  " + asset);
         asset.toFile().getParentFile().mkdirs();
-        if (asset.toFile().isFile()) {
+        if (path.toFile().isFile()) {
           copy(path, asset);
         }
       }
     }
   }
 
-  private static void apidoc(final Path basedir, final Path md) throws Exception {
+  static void apidoc(final Path basedir, final Path md) throws Exception {
     Path src = basedir.resolve(Paths.get("jooby", "src", "main", "java", "org", "jooby"))
         .normalize();
     try (Stream<Path> walk = Files.walk(src).filter(p -> {
@@ -236,6 +248,19 @@ public class JoobySiteGenerator {
     return doc.toString();
   }
 
+  static void checkoutGuide(final Path outDir) throws Exception {
+    cleanDir(outDir);
+    String repo = "git@github.com:jooby-guides/" + outDir.getFileName().toString() + ".git";
+    System.out.println("git clone " + repo);
+    File dir = outDir.toFile();
+    dir.mkdirs();
+    Process git = new ProcessBuilder("git", "clone", repo, ".")
+        .directory(dir)
+        .start();
+    git.waitFor();
+    git.destroy();
+  }
+
   static void checkout(final Path outDir) throws Exception {
     cleanDir(outDir);
     System.out.println("git clone -b gh-pages git@github.com:jooby-project/jooby.git");
@@ -275,6 +300,12 @@ public class JoobySiteGenerator {
       if (filename.startsWith("doc/")) {
         return hbs.compile("doc/mod");
       }
+      if (filename.startsWith("guides/")) {
+        return hbs.compile("guides/guide");
+      }
+      if (filename.endsWith("spec.html")) {
+        return hbs.compile("doc/mod");
+      }
       throw ex;
     }
   }
@@ -308,6 +339,7 @@ public class JoobySiteGenerator {
 
     StringBuilder toc = new StringBuilder();
     String title = null;
+    String sdesc = null;
     toc.append("<ul>");
     String active = "active";
     for (Element h2 : doc.select("h2")) {
@@ -315,6 +347,10 @@ public class JoobySiteGenerator {
       String header = h2.text();
       if (title == null) {
         title = h2.text();
+        Element p = doc.select("p").first();
+        if (p != null) {
+          sdesc = Splitter.on('.').splitToList(p.text()).stream().findFirst().get().trim();
+        }
       }
       String id = id(header);
       html.append("<div class=\"datalist-title ").append(active).append("\">\n")
@@ -355,8 +391,52 @@ public class JoobySiteGenerator {
       active = "";
     }
     toc.append("\n</ul>");
-
-    return new String[]{doc.select("body").html(), toc.toString(), raw, title };
+    String bcm = "<span class=\"cm\">";
+    String format = "<span class=\"cm\">%1$s</span>";
+    String ecm = "</span>";
+    // fix multi-line comments
+    List<String> html = Splitter.on("\n").splitToList(doc.select("body").html()).stream()
+        .map(line -> {
+          String tline = line.trim();
+          if (tline.startsWith(bcm)) {
+            StringBuilder spaces = new StringBuilder();
+            for (int i = 0; i < line.length() - tline.length(); i++) {
+              spaces.append(" ");
+            }
+            String cml = tline.substring(bcm.length(), tline.length() - ecm.length());
+            if (cml.startsWith("/**")) {
+              cml = cml.substring("/**".length(), cml.length() - "*/".length());
+              cml = Splitter.onPattern("\\s*\\*\\s+").splitToList(cml).stream().map(cl -> {
+                return spaces.toString() + " " + String.format(format, "* " + cl).trim() + "\n";
+              }).collect(Collectors.joining("\n",
+                  spaces.toString() + String.format(format, "/**") + "\n",
+                  spaces.toString() + " " + String.format(format, "*/")));
+              return Splitter.on("\n").splitToList(cml).stream()
+                  .filter(l -> l.trim().length() > 0)
+                  .collect(Collectors.joining("\n"));
+            }
+          }
+          return line;
+        })
+        .collect(Collectors.toList());
+    String stitle = null;
+    if (filename.contains("doc")) {
+      List<String> spath = Splitter.on("/").trimResults().omitEmptyStrings().splitToList(filename);
+      if (spath.size() > 2) {
+        stitle = spath.get(1);
+        if (stitle.equals("maven-plugin")) {
+          stitle = "mvn jooby:run";
+        } else {
+          stitle += " module";
+        }
+      } else {
+        sdesc = null;
+      }
+    } else {
+      sdesc = null;
+    }
+    return new String[]{html.stream().collect(Collectors.joining("\n")), toc.toString(), raw,
+        title, stitle, sdesc };
   }
 
   private static String id(final String text) {
@@ -372,7 +452,7 @@ public class JoobySiteGenerator {
       cleanDir(output);
       // collect vars
       Map<String, String> links = vars();
-      Map<String, String> vars = new HashMap<>(links);
+      Map<String, String> vars = new LinkedHashMap<>(links);
       vars.put("toc.md", "");
       Iterator<Path> it = walk.iterator();
       List<Path> paths = new ArrayList<>();
@@ -408,8 +488,18 @@ public class JoobySiteGenerator {
         for (Entry<String, String> var : vars.entrySet()) {
           main = main.replace("{{" + var.getKey() + "}}", var.getValue());
         }
+        String guide = path.getName(path.getNameCount() - 1).toString().replace(".md", "");
+        main = main.replace("{{guide}}", guide);
+        main = main.replace("{{pkgguide}}", guide.replace("-", ""));
+
         Path md = output.resolve(source.relativize(path));
-        md.toFile().getParentFile().mkdirs();
+        Path dir = md.toFile().getParentFile().toPath();
+        if (dir.endsWith("guides") && !md.endsWith("index.md")) {
+          // rewrite guide
+          dir = dir.resolve(md.getFileName().toString().replace(".md", ""));
+          md = dir.resolve("README.md");
+        }
+        dir.toFile().mkdirs();
         write(md, main);
         System.out.println("  done: " + md);
       }
@@ -454,7 +544,7 @@ public class JoobySiteGenerator {
   }
 
   private static Map<String, String> vars() {
-    Map<String, String> links = new HashMap<>();
+    Map<String, String> links = new LinkedHashMap<>();
 
     links.put("year", LocalDate.now().getYear() + "");
 
@@ -462,17 +552,47 @@ public class JoobySiteGenerator {
 
     links.put("netty_server", "[Netty](/doc/netty)");
 
+    links.put("raml", "[RAML](http://raml.org)");
+
     links.put("undertow_server", "[Undertow](/doc/undertow)");
 
     links.put("site", "http://jooby.org");
 
+    links.put("hibernate", "[Hibernate](http://hibernate.org)");
+
+    links.put("twitter", "[@joobyproject](https://twitter.com/joobyproject)");
+
+    links.put("ggroup", "[group](https://groups.google.com/forum/#!forum/jooby-project)");
+
+    links.put("slack", "[slack](https://jooby.slack.com)");
+
+    links.put("nginx", "[nginx](https://www.nginx.com)");
+
+    links.put("apache", "[apache](https://httpd.apache.org)");
+
+    links.put("gh-prefix", "https://github.com/jooby-project/jooby/tree/master/jooby");
+
+    links.put("guides", "http://jooby.org/guides");
+
     links.put("Jooby", "[Jooby](http://jooby.org)");
 
-    links.put("templates", "[templates](https://github.com/jooby-starters)");
+    links.put("git", "[Git](https://git-scm.com/downloads)");
+
+    links.put("joobyrun",
+        "[mvn jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin)");
+
+    links.put("gh-guides", "https://github.com/jooby-guides");
+
+    links.put("java",
+        "[JDK 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)");
+
+    links.put("templates", "[guides](https://github.com/jooby-guides)");
 
     links.put(
         "jetty_server",
         "[Jetty](/doc/jetty)");
+
+    links.put("h2", "[h2](http://www.h2database.com)");
 
     links.put(
         "freemarker",
@@ -564,7 +684,7 @@ public class JoobySiteGenerator {
 
     links.put(
         "maven",
-        "[Maven](http://maven.apache.org/)");
+        "[Maven 3+](http://maven.apache.org/)");
 
     links.put(
         "guice",
@@ -654,7 +774,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "0.13.0";
+    return "0.15.0";
   }
 
 }

@@ -32,7 +32,7 @@ public class ToMarkdown {
 
   public static void main(final String[] args) throws Exception {
     CompilationUnit unit = JavaParser.parse(new File(
-        "../jooby-project/jooby-pebble/src/main/java/org/jooby/pebble/Pebble.java"));
+        "../jooby-project/jooby-guava-cache/src/main/java/org/jooby/guava/GuavaCache.java"));
 
     System.out.println(toMd(unit));
 
@@ -74,7 +74,7 @@ public class ToMarkdown {
     javadoc = code(javadoc);
     javadoc = pre(javadoc);
     javadoc = strong(javadoc);
-    javadoc = apidoc(javadoc, sourceCode);
+    // javadoc = apidoc(javadoc, sourceCode);
     javadoc = attr(javadoc, "@author");
     javadoc = nl(javadoc);
 
@@ -97,7 +97,7 @@ public class ToMarkdown {
     if (h1 != null && h2 != null) {
       h2.before(
           "<h2>dependency</h2>\n<pre>\n&lt;dependency&gt;\n  &lt;groupId&gt;org.jooby&lt;/groupId&gt;\n  &lt;artifactId&gt;jooby-"
-              + h1.text().trim()
+              + h1.text().trim().toLowerCase()
               + "&lt;/artifactId&gt;\n  &lt;version&gt;{{version}}&lt;/version&gt;\n&lt;/dependency&gt;\n</pre>\n");
       return doc.body().html();
     }

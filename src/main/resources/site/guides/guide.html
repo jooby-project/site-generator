@@ -1,0 +1,22 @@
+{{#partial "title"}}jooby: {{page-header}} guide{{/partial}}
+{{#partial "main-class"}}page-section page-sidebar{{/partial}}
+{{#partial "guides"}}active{{/partial}}
+{{#partial "main"}}
+<div class="section-title"> 
+  <div class="row">
+    <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a>
+    <h1>{{page-header}}</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
+    <div class="show-mobile menu-open">{{page-header}}</div>
+    {{&toc}}
+  </div>
+  <div class="section-content">
+  {{&main}}
+  </div>
+</div>
+{{/partial}}
+
+{{> layout}}

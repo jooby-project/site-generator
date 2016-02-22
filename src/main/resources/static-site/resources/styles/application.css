@@ -1,3 +1,7 @@
+.codehilite pre.cm {
+  padding-top: 0;
+  padding-bottom: 0;
+}
 code .kn,
 code .kd,
 code .k {
@@ -859,10 +863,15 @@ p {
 }
 
 ul,
+ul li,
 ol,
-li {
+ol li {
   margin: 0;
   padding: 0;
+}
+
+ul,
+ul li {
   list-style: none;
 }
 
@@ -1138,6 +1147,20 @@ th {
   padding: 0;
 }
 
+/** Blocks */
+
+blockquote {
+  padding-left: 10px;
+  margin: 0 5px;
+  border-left: 5px solid #21474c;
+  color: #21474c;
+}
+
+.section-content blockquote,
+.section-content blockquote p {
+  color: #21474c;
+}
+
 .page-modules .site-content > .row {
   max-width: 1230px;
   font-size: 0;
@@ -1153,7 +1176,7 @@ th {
 
 .page-sidebar .section-content {
   float: right;
-  width: 66.66%;
+  width: 70%;
 }
 
 .section-title {
@@ -1323,7 +1346,7 @@ th {
 .section-content p {
   color: #656565;
   letter-spacing: 1px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   line-height: 22px;
 }
 .section-content p a,
@@ -1335,7 +1358,7 @@ th {
   text-decoration: underline;
 }
 .section-content .highlighter-rouge {
-  margin-bottom: 46px;
+  margin-bottom: 24px;
 }
 
 .section-sidebar {

@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{#block "title"}}jooby: A micro web framework for Java{{/block}}</title>
-    <meta name="description" content="">
+    <title>{{#block "title"}}Jooby{{/block}}</title>
+    <meta name="description" content="Scalable, fast and modular micro web framework for Java">
     <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, {{page-header}}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="#">
     <link rel="publisher" href="#">
     <meta name="robots" content="robots.txt">
-    <meta name="og:title" content="jooby">
-    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
+    <meta name="og:title" content="{{#if stitle}}jooby: {{stitle}}{{else}}jooby{{/if}}">
+    <meta name="og:description" content="{{#sdesc}}{{this}}{{else}}Scalable, fast and modular micro web framework for Java{{/sdesc}}">
     <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -27,10 +27,10 @@
     ALTO: 200
     FORMATO: JPG
     -->
-    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
-    <meta name="og:site_name" content="jooby">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="jooby">
+    <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="{{#if stitle}}jooby: {{stitle}}{{else}}jooby{{/if}}">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{#if stitle}}jooby: {{stitle}}{{else}}jooby{{/if}}">
     <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
@@ -40,12 +40,12 @@
     FORMATO: JPG
     TAMAÑO MAXIMO: 1MB
     -->
-    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
-    <meta name="twitter:site" content="https://twitter.com/joobyproject">
+    <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg">
+    <meta name="twitter:site" content="@joobyproject">
     <meta name="twitter:creator" content="https://twitter.com/edgarespina">
     <meta name="twitter:domain" content="http://jooby.org">
     <meta name="twitter:url" content="https://twitter.com/joobyproject">
-    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
+    <meta name="twitter:description" content="{{#sdesc}}{{this}}{{else}}Scalable, fast and modular micro web framework for Java{{/sdesc}}">
     <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
     <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
     <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
@@ -72,7 +72,7 @@
         <nav class="site-nav">
           <ul>
             <li class="{{block 'quickstart'}}"><a href="/quickstart" title="Quick start">QUICK START</a></li>
-            <li class="{{block 'doc'}}"><a href="/doc" title="Doc">DOC</a></li>
+            <li class="{{block 'doc'}}"><a href="/doc" title="Doc">DOCS</a></li>
             <li class="{{block 'modules'}}"><a href="/modules" title="Modules">MODULES</a></li>
             <li class="{{block 'help'}}"><a href="/community" title="Community">COMMUNITY</a></li>
             <li class="{{block 'faq'}}"><a href="/faq" title="FAQ">FAQ</a></li>
@@ -98,5 +98,14 @@
     <script src="/resources/scripts/libs/swiper.min.js"></script>
     <script src="/resources/scripts/application.js"></script>
     <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>
   </body>
 </html>
