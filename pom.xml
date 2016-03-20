@@ -18,6 +18,13 @@
       <version>4.0.1</version>
     </dependency>
 
+    <!-- zt-exec -->
+    <dependency>
+      <groupId>org.zeroturnaround</groupId>
+      <artifactId>zt-exec</artifactId>
+      <version>1.8</version>
+    </dependency>
+
     <dependency>
       <groupId>com.github.javaparser</groupId>
       <artifactId>javaparser-core</artifactId>

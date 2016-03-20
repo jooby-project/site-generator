@@ -23,12 +23,14 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.jruby.embed.PathType;
 import org.jruby.embed.ScriptingContainer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Tag;
+import org.zeroturnaround.exec.ProcessExecutor;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -54,8 +56,11 @@ public class JoobySiteGenerator {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-     checkout(outDir);
+    checkout(outDir);
     Path md = process(basedir.resolve("md"));
+    if (release) {
+      javadoc(basedir, outDir.resolve("apidocs"));
+    }
     // apidoc(basedir, md);
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
@@ -81,6 +86,7 @@ public class JoobySiteGenerator {
           data.put("page-header", html[3]);
           data.put("stitle", html[4]);
           data.put("sdesc", html[5]);
+          data.put("page-url", "http://jooby.org/" + path.getParent());
           data.put("year", LocalDate.now().getYear());
           data.put("infinite", "&infin;");
           Path output = Paths.get(outDir.resolve(path).toString()
@@ -266,12 +272,36 @@ public class JoobySiteGenerator {
     System.out.println("git clone -b gh-pages git@github.com:jooby-project/jooby.git");
     File dir = outDir.toFile();
     dir.mkdirs();
-    Process git = new ProcessBuilder("git", "clone", "-b", "gh-pages", "--single-branch",
-        "git@github.com:jooby-project/jooby.git", ".")
-            .directory(dir)
-            .start();
-    git.waitFor();
-    git.destroy();
+    int exit = new ProcessExecutor()
+        .command("git", "clone", "-b", "gh-pages", "--single-branch",
+            "git@github.com:jooby-project/jooby.git", ".")
+        .redirectOutput(System.err)
+        .directory(dir)
+        .execute()
+        .getExitValue();
+    if (exit != 0) {
+      System.err.println("can't clone repo");
+      System.exit(0);
+    }
+  }
+
+  private static void javadoc(final Path basedir, final Path dir) throws Exception {
+    cleanDir(dir);
+    dir.toFile().mkdirs();
+    int exit = new ProcessExecutor()
+        .command("/usr/local/Cellar/maven/3.3.9/bin/mvn", "clean", "javadoc:javadoc", "-P",
+            "gh-pages")
+        .directory(basedir.toFile().getCanonicalFile())
+        .redirectOutput(System.err)
+        .execute()
+        .getExitValue();
+    if (exit != 0) {
+      System.err.println("javadoc err");
+      System.exit(0);
+    }
+    FileUtils.copyDirectory(
+        basedir.resolve("target").resolve("site").resolve("apidocs").toFile().getCanonicalFile(),
+        dir.toFile());
   }
 
   private static void cleanDir(final Path outDir) throws IOException {
@@ -367,6 +397,8 @@ public class JoobySiteGenerator {
               .append("\">").append(sibling.text())
               .append("</a></li>");
           sibling.attr("id", id + "-" + id(sibling.text()));
+        } else if (sibling.tagName().equals("h4")) {
+          sibling.attr("id", id + "-" + id(sibling.text()));
         }
         html.append(sibling);
         Element remove = sibling;
@@ -434,6 +466,12 @@ public class JoobySiteGenerator {
       }
     } else {
       sdesc = null;
+    }
+    if (stitle != null) {
+      stitle = Jsoup.parseBodyFragment(stitle).text();
+    }
+    if (sdesc != null) {
+      sdesc = Jsoup.parseBodyFragment(sdesc).text();
     }
     return new String[]{html.stream().collect(Collectors.joining("\n")), toc.toString(), raw,
         title, stitle, sdesc };
@@ -680,7 +718,7 @@ public class JoobySiteGenerator {
 
     links.put(
         "defdocs",
-        "/apidocs");
+        "/apidocs/org/jooby");
 
     links.put(
         "maven",
@@ -756,7 +794,7 @@ public class JoobySiteGenerator {
 
     links.put(
         "morphia",
-        "https://github.com/mongodb/morphia");
+        "[Morphia](https://github.com/mongodb/morphia)");
 
     links.put(
         "morphiaapi",
@@ -774,7 +812,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "0.15.0";
+    return "0.16.0";
   }
 
 }

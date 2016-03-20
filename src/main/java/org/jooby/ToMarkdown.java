@@ -32,7 +32,7 @@ public class ToMarkdown {
 
   public static void main(final String[] args) throws Exception {
     CompilationUnit unit = JavaParser.parse(new File(
-        "../jooby-project/jooby-guava-cache/src/main/java/org/jooby/guava/GuavaCache.java"));
+        "../jooby-project/jooby-executor/src/main/java/org/jooby/exec/Exec.java"));
 
     System.out.println(toMd(unit));
 
