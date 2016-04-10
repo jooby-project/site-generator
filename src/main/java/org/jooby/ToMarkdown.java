@@ -32,7 +32,7 @@ public class ToMarkdown {
 
   public static void main(final String[] args) throws Exception {
     CompilationUnit unit = JavaParser.parse(new File(
-        "../jooby-project/jooby-executor/src/main/java/org/jooby/exec/Exec.java"));
+        "../jooby-project/jooby-sitemap/src/main/java/org/jooby/sitemap/Sitemap.java"));
 
     System.out.println(toMd(unit));
 
@@ -51,8 +51,12 @@ public class ToMarkdown {
   public static String toMd(final String html, final String sourceCode, final int hlevel)
       throws Exception {
     String javadoc = html;
-    javadoc = javadoc.replace("/**", "\n").replace("*/", "\n").replace(" * ", "\n").replace(" *",
-        "\n");
+    javadoc = javadoc.replace("/**", "\n")
+        .replace("*/", "\n")
+        .replace(" * ", "\n")
+        .replace(" *", "\n")
+        .replace("<pre>{@code", "<pre>")
+        .replace("}</pre>", "</pre>");
 
     javadoc = joinplines(javadoc);
 
@@ -109,13 +113,13 @@ public class ToMarkdown {
     doc.select("pre").forEach(pre -> {
       String html = Splitter.on("\n").omitEmptyStrings().splitToList(pre.html()).stream()
           .map(line -> {
-        String tline = line.trim();
-        int diff = line.length() - tline.length();
-        if (diff == 2 && tline.length() > 0 && !(tline.startsWith("//"))) {
-          return line + $NL;
-        }
-        return line;
-      }).collect(Collectors.joining($NL));
+            String tline = line.trim();
+            int diff = line.length() - tline.length();
+            if (diff == 2 && tline.length() > 0 && !(tline.startsWith("//"))) {
+              return line + $NL;
+            }
+            return line;
+          }).collect(Collectors.joining($NL));
       pre.html($NL + html + $NL);
     });
     return doc.body().html();
@@ -179,7 +183,8 @@ public class ToMarkdown {
   private static String pre(final String javadoc) {
     String html = javadoc
         .replace("&lt;", "<")
-        .replace("&gt;", ">").replace("{@literal ->}", "->");
+        .replace("&gt;", ">")
+        .replace("{@literal ->}", "->");
     List<String> types = typesFor(html.replace($NL, "\n"));
     for (String type : types) {
       html = html.replaceFirst("<pre>", "```" + type);
@@ -190,7 +195,11 @@ public class ToMarkdown {
   private static List<String> typesFor(final String source) {
     List<String> types = new ArrayList<>();
     Jsoup.parseBodyFragment(source).select("pre").forEach(pre -> {
-      types.add(typeFor(pre.html()));
+      String s = pre.html().trim();
+      if (s.startsWith("{@code")) {
+        s = s.substring("{@code".length(), s.lastIndexOf("}")).trim();
+      }
+      types.add(typeFor(s));
     });
     return types;
   }

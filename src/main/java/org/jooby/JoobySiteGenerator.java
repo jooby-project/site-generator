@@ -50,23 +50,21 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  static boolean release = true;
+  static boolean release = false;
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-    checkout(outDir);
+//    checkout(outDir);
     Path md = process(basedir.resolve("md"));
-    if (release) {
-      javadoc(basedir, outDir.resolve("apidocs"));
-    }
-    // apidoc(basedir, md);
+//    javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
       String name = p.getFileName().toString();
-      return (name.equals("README.md") && p.getNameCount() > 1) || name.equals("index.md")
+      return (name.equals("README.md") && p.getNameCount() > 1)
+          || name.equals("index.md")
           || name.equals("spec.md");
     }).sorted()) {
       Iterator<Path> it = walk.iterator();
@@ -234,6 +232,9 @@ public class JoobySiteGenerator {
         href = href.replace("https://github.com/jooby-project/jooby/tree/master/jooby-", "/doc/");
         boolean abs = href.startsWith("http://") || href.startsWith("https://");
         if (abs && !href.startsWith("http://jooby.org")) {
+          a.attr("target", "_blank");
+        }
+        if (href.startsWith("/apidocs")) {
           a.attr("target", "_blank");
         }
         a.attr("href", href);
@@ -530,7 +531,14 @@ public class JoobySiteGenerator {
         main = main.replace("{{guide}}", guide);
         main = main.replace("{{pkgguide}}", guide.replace("-", ""));
 
-        Path md = output.resolve(source.relativize(path));
+        Path fpath = path;
+        if (fpath.toFile().getParentFile().list().length == 1) {
+          if (!fpath.getFileName().endsWith("index.md")
+              && !fpath.getFileName().endsWith("README.md")) {
+            fpath = fpath.getParent().resolve("README.md");
+          }
+        }
+        Path md = output.resolve(source.relativize(fpath));
         Path dir = md.toFile().getParentFile().toPath();
         if (dir.endsWith("guides") && !md.endsWith("index.md")) {
           // rewrite guide
@@ -812,7 +820,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "0.16.0";
+    return "1.0.0.CR1";
   }
 
 }
