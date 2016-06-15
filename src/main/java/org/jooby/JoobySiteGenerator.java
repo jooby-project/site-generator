@@ -58,7 +58,7 @@ public class JoobySiteGenerator {
     Path outDir = target.resolve("gh-pages");
 //    checkout(outDir);
     Path md = process(basedir.resolve("md"));
-//    javadoc(basedir, outDir.resolve("apidocs"));
+    javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
@@ -820,7 +820,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "1.0.0.CR1";
+    return "1.0.0.CR4";
   }
 
 }
