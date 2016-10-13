@@ -50,13 +50,13 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  static boolean release = false;
+  static boolean release = true;
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-//    checkout(outDir);
+    checkout(outDir);
     Path md = process(basedir.resolve("md"));
     javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
@@ -92,6 +92,7 @@ public class JoobySiteGenerator {
               .replace("index.md", "index.html")
               .replace("spec.md", "spec.html"));
           output.toFile().getParentFile().mkdirs();
+          System.out.println("html: " + output);
           write(output, finalize(template.apply(data).trim()));
 
           if (release && path.toString().endsWith("README.md")) {
@@ -100,6 +101,7 @@ public class JoobySiteGenerator {
                 .normalize();
             File ghdir = outputgh.toFile().getParentFile();
             if (ghdir.exists()) {
+              System.out.println("releasing: " + outputgh);
               write(outputgh, main);
             }
           }
@@ -547,6 +549,12 @@ public class JoobySiteGenerator {
         }
         dir.toFile().mkdirs();
         write(md, main);
+        if (fpath.getParent().getFileName().toString()
+            .equals(fpath.getFileName().toString().replace(".md", ""))) {
+          File rewrite = md.getParent().resolve("README.md").toFile();
+          md.toFile().renameTo(rewrite);
+          md = rewrite.toPath();
+        }
         System.out.println("  done: " + md);
       }
       return output;
@@ -596,9 +604,15 @@ public class JoobySiteGenerator {
 
     links.put("metrics", "[Metrics](http://metrics.dropwizard.io)");
 
+    links.put("gradle", "[Gradle](http://gradle.org)");
+
     links.put("netty_server", "[Netty](/doc/netty)");
 
     links.put("raml", "[RAML](http://raml.org)");
+
+    links.put("cassandra", "[Cassandra](http://cassandra.apache.org)");
+
+    links.put("couchbase", "[Couchbase](http://www.couchbase.com)");
 
     links.put("undertow_server", "[Undertow](/doc/undertow)");
 
@@ -820,7 +834,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "1.0.0.CR4";
+    return "1.0.0.CR8";
   }
 
 }
