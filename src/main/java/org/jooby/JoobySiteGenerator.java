@@ -50,15 +50,15 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  static boolean release = true;
+  static boolean release = false;
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-    checkout(outDir);
+    // checkout(outDir);
     Path md = process(basedir.resolve("md"));
-    javadoc(basedir, outDir.resolve("apidocs"));
+//    javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
@@ -481,7 +481,7 @@ public class JoobySiteGenerator {
   }
 
   private static String id(final String text) {
-    return text.replaceAll("[^A-Za-z]+", "-").replaceAll("\\-+", "-");
+    return text.replaceAll("[^A-Za-z0-9]+", "-").replaceAll("\\-+", "-");
   }
 
   private static Path process(final Path source) throws IOException {
@@ -585,7 +585,7 @@ public class JoobySiteGenerator {
         name += "-" + file.getParentFile().getName();
       }
       Path rsrc = basedir.resolve(Paths.get(name, "src", "main", "resources"));
-      String level = path.toString().endsWith("/doc/index.md") ? "#" : "##";
+      String level = "##";
       return Files.walk(rsrc)
           .filter(p -> p.toString().endsWith(".conf") || p.toString().endsWith(".properties"))
           .map(p -> level + " " + p.getFileName().toString() + "\n\n```properties\n"
@@ -598,243 +598,261 @@ public class JoobySiteGenerator {
   }
 
   private static Map<String, String> vars() {
-    Map<String, String> links = new LinkedHashMap<>();
+    Map<String, String> vars = new LinkedHashMap<>();
 
-    links.put("year", LocalDate.now().getYear() + "");
+    vars.put("year", LocalDate.now().getYear() + "");
 
-    links.put("metrics", "[Metrics](http://metrics.dropwizard.io)");
+    vars.put("metrics", "[Metrics](http://metrics.dropwizard.io)");
 
-    links.put("gradle", "[Gradle](http://gradle.org)");
+    vars.put("gradle", "[Gradle](http://gradle.org)");
 
-    links.put("netty_server", "[Netty](/doc/netty)");
+    vars.put("netty_server", "[Netty](/doc/netty)");
 
-    links.put("raml", "[RAML](http://raml.org)");
+    vars.put("raml", "[RAML](http://raml.org)");
 
-    links.put("cassandra", "[Cassandra](http://cassandra.apache.org)");
+    vars.put("cassandra", "[Cassandra](http://cassandra.apache.org)");
 
-    links.put("couchbase", "[Couchbase](http://www.couchbase.com)");
+    vars.put("couchbase", "[Couchbase](http://www.couchbase.com)");
 
-    links.put("undertow_server", "[Undertow](/doc/undertow)");
+    vars.put("undertow_server", "[Undertow](/doc/undertow)");
 
-    links.put("site", "http://jooby.org");
+    vars.put("site", "http://jooby.org");
 
-    links.put("hibernate", "[Hibernate](http://hibernate.org)");
+    vars.put("hibernate", "[Hibernate](http://hibernate.org)");
 
-    links.put("twitter", "[@joobyproject](https://twitter.com/joobyproject)");
+    vars.put("twitter", "[@joobyproject](https://twitter.com/joobyproject)");
 
-    links.put("ggroup", "[group](https://groups.google.com/forum/#!forum/jooby-project)");
+    vars.put("ggroup", "[group](https://groups.google.com/forum/#!forum/jooby-project)");
 
-    links.put("slack", "[slack](https://jooby.slack.com)");
+    vars.put("slack", "[slack](https://jooby.slack.com)");
 
-    links.put("nginx", "[nginx](https://www.nginx.com)");
+    vars.put("nginx", "[nginx](https://www.nginx.com)");
 
-    links.put("apache", "[apache](https://httpd.apache.org)");
+    vars.put("apache", "[apache](https://httpd.apache.org)");
 
-    links.put("gh-prefix", "https://github.com/jooby-project/jooby/tree/master/jooby");
+    vars.put("gh-prefix", "https://github.com/jooby-project/jooby/tree/master/jooby");
 
-    links.put("guides", "http://jooby.org/guides");
+    vars.put("guides", "http://jooby.org/guides");
 
-    links.put("Jooby", "[Jooby](http://jooby.org)");
+    vars.put("Jooby", "[Jooby](http://jooby.org)");
 
-    links.put("git", "[Git](https://git-scm.com/downloads)");
+    vars.put("git", "[Git](https://git-scm.com/downloads)");
 
-    links.put("joobyrun",
+    vars.put("joobyrun",
         "[mvn jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin)");
 
-    links.put("gh-guides", "https://github.com/jooby-guides");
+    vars.put("gh-guides", "https://github.com/jooby-guides");
 
-    links.put("java",
+    vars.put("java",
         "[JDK 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)");
 
-    links.put("templates", "[guides](https://github.com/jooby-guides)");
+    vars.put("templates", "[guides](https://github.com/jooby-guides)");
 
-    links.put(
+    vars.put(
         "jetty_server",
         "[Jetty](/doc/jetty)");
 
-    links.put("h2", "[h2](http://www.h2database.com)");
+    vars.put("h2", "[h2](http://www.h2database.com)");
 
-    links.put(
+    vars.put(
         "freemarker",
         "[Freemarker](http://freemarker.org)");
 
-    links.put(
+    vars.put(
         "gson",
         "[Gson](https://github.com/google/gson)");
 
-    links.put(
+    vars.put(
         "jackson",
         "[Jackson](https://github.com/FasterXML/jackson)");
 
-    links.put(
+    vars.put(
         "rx",
         "[RxJava](https://github.com/ReactiveX/RxJava)");
 
-    links.put(
+    vars.put(
         "ebean",
         "[Ebean ORM](http://ebean-orm.github.io)");
 
-    links.put(
+    vars.put(
         "hazelcast",
         "[Hazelcast](http://hazelcast.org)");
 
-    links.put(
+    vars.put(
         "less",
         "[Less](http://lesscss.org)");
 
-    links.put(
+    vars.put(
         "less4j",
         "[Less4j](https://github.com/SomMeri/less4j)");
 
-    links.put(
+    vars.put(
         "sass",
         "[Sass](http://sass-lang.com)");
 
-    links.put(
+    vars.put(
         "sassjava",
         "[Vaadin Sass Compiler](https://github.com/vaadin/sass-compiler)");
 
-    links.put(
+    vars.put(
         "flyway",
         "[Flyway](http://flywaydb.org)");
 
-    links.put(
+    vars.put(
         "jongo",
         "[Jongo](http://jongo.org)");
 
-    links.put(
+    vars.put(
         "commons-email",
         "[Apache Commons Email](https://commons.apache.org/proper/commons-email)");
 
-    links.put(
+    vars.put(
         "spymemcached",
         "[SpyMemcached](https://github.com/dustin/java-memcached-client)");
 
-    links.put(
+    vars.put(
         "memcached",
         "[Memcached](http://memcached.org)");
 
-    links.put(
+    vars.put(
         "swagger",
         "[Swagger](http://swagger.io)");
 
-    links.put(
+    vars.put(
         "pac4j",
         "[Pac4j](https://github.com/pac4j/pac4j)");
 
-    links.put(
+    vars.put(
         "version",
         version());
 
-    links.put(
+    vars.put(
         "ehcache",
         "[Ehcache](http://ehcache.org)");
 
-    links.put(
-        "site",
-        "/");
+    vars.put("site", "/");
 
-    links.put(
-        "apidocs",
-        "/apidocs");
+    vars.put("apidocs", "/apidocs");
 
-    links.put(
-        "defdocs",
-        "/apidocs/org/jooby");
+    vars.put("defdocs", "/apidocs/org/jooby");
 
-    links.put(
+    vars.put("request", "[request](/apidocs/org/jooby/Request.html)");
+    vars.put("response", "[response](/apidocs/org/jooby/Response.html)");
+    vars.put("rsp_send", "[rsp.send()](/apidocs/org/jooby/Response.html#send-java.lang.Object-)");
+    vars.put("chain_next", "[chain.next(req, rsp)](/apidocs/org/jooby/Route.Chain.html#next-org.jooby.Request-org.jooby.Response-)");
+    vars.put("result", "[result](/apidocs/org/jooby/Result.html)");
+    vars.put("file_upload", "[file upload](/apidocs/org/jooby/Upload.html)");
+    vars.put("formurlencoded", "`application/x-www-form-urlencoded`");
+    vars.put("formmultipart", "`multipart/form-data`");
+    vars.put("route_map", "[map](/apidocs/org/jooby/Jooby.html#map-org.jooby.Route.Mapper-)");
+    vars.put("route_with", "[with](/apidocs/org/jooby/Jooby.html#with-java.lang.Runnable-)");
+    vars.put("route_excludes", "[excludes](/apidocs/org/jooby/Route.Definition.html#excludes-java.util.List-)");
+    vars.put("route_consumes", "[consumes](/apidocs/org/jooby/Route.Definition.html#consumes-java.util.List-)");
+    vars.put("route_produces", "[produces](/apidocs/org/jooby/Route.Definition.html#produces-java.util.List-)");
+    vars.put("req_param", "[req.param(\"name\")](/apidocs/org/jooby/Request.html#param-java.lang.String-)");
+    vars.put("req_header", "[req.header(\"name\")](/apidocs/org/jooby/Request.html#header-java.lang.String-)");
+    vars.put("mutant", "[mutant](/apidocs/org/jooby/Mutant.html)");
+    vars.put("parser", "[parser](/apidocs/org/jooby/Parser.html)");
+
+    vars.put("req_filter", "[filter](/apidocs/org/jooby/Route.Filter.html)");
+    vars.put("req_handler", "[handler](/apidocs/org/jooby/Route.Handler.html)");
+    vars.put("req_bodyc", "[req.body(Class)](/apidocs/org/jooby/Request.html#body-java.lang.Class-)");
+    vars.put("req_body", "[req.body()](/apidocs/org/jooby/Request.html#body--)");
+    vars.put("deferred", "[deferred](/apidocs/org/jooby/Deferred.html)");
+
+    vars.put(
         "maven",
         "[Maven 3+](http://maven.apache.org/)");
 
-    links.put(
+    vars.put(
         "guice",
         "[Guice](https://github.com/google/guice)");
 
-    links.put(
+    vars.put(
         "jooby",
         "[Jooby](http://jooby.org)");
 
-    links.put(
+    vars.put(
         "netty",
         "[Netty](http://netty.io)");
 
-    links.put(
+    vars.put(
         "jetty",
         "[Jetty](http://www.eclipse.org/jetty/)");
 
-    links.put(
+    vars.put(
         "undertow",
         "[Undertow](http://undertow.io)");
 
-    links.put(
+    vars.put(
         "npm",
         "[npm](https://www.npmjs.com)");
 
-    links.put(
+    vars.put(
         "grunt",
         "[npm](http://gruntjs.com)");
 
-    links.put(
+    vars.put(
         "redis",
         "[Redis](http://redis.io)");
 
-    links.put(
+    vars.put(
         "jedis",
         "[Jedis](https://github.com/xetorthio/jedis)");
 
-    links.put(
+    vars.put(
         "expressjs",
         "[express.js](http://expressjs.com)");
 
-    links.put(
+    vars.put(
         "sinatra",
         "[Sinatra](http://www.sinatrarb.com)");
 
-    links.put(
+    vars.put(
         "spring",
         "[Spring](http://spring.io)");
 
-    links.put(
+    vars.put(
         "jersey",
         "[Jersey](https://jersey.java.net)");
 
-    links.put(
+    vars.put(
         "hikari",
         "[Hikari](https://github.com/brettwooldridge/HikariCP)");
 
-    links.put(
+    vars.put(
         "mongodb",
         "[MongoDB](http://mongodb.github.io/mongo-java-driver/)");
 
-    links.put(
+    vars.put(
         "mongodbapi",
         "http://api.mongodb.org/java/2.13/com/mongodb");
 
-    links.put(
+    vars.put(
         "gh",
         "https://github.com/jooby-project/jooby/tree/master");
 
-    links.put(
+    vars.put(
         "morphia",
         "[Morphia](https://github.com/mongodb/morphia)");
 
-    links.put(
+    vars.put(
         "morphiaapi",
         "https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia");
 
-    links.put(
+    vars.put(
         "jboss-modules",
         "[JBoss Modules](https://github.com/jboss-modules/jboss-modules)");
 
-    links.put(
+    vars.put(
         "elasticsearch",
         "[Elastic Search](https://github.com/elastic/elasticsearch)");
 
-    return links;
+    return vars;
   }
 
   private static String version() {
-    return "1.0.0.CR8";
+    return "1.0.0";
   }
 
 }
