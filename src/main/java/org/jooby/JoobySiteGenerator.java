@@ -56,9 +56,9 @@ public class JoobySiteGenerator {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-    // checkout(outDir);
+    checkout(outDir);
     Path md = process(basedir.resolve("md"));
-//    javadoc(basedir, outDir.resolve("apidocs"));
+    javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
@@ -739,24 +739,31 @@ public class JoobySiteGenerator {
     vars.put("request", "[request](/apidocs/org/jooby/Request.html)");
     vars.put("response", "[response](/apidocs/org/jooby/Response.html)");
     vars.put("rsp_send", "[rsp.send()](/apidocs/org/jooby/Response.html#send-java.lang.Object-)");
-    vars.put("chain_next", "[chain.next(req, rsp)](/apidocs/org/jooby/Route.Chain.html#next-org.jooby.Request-org.jooby.Response-)");
+    vars.put("chain_next",
+        "[chain.next(req, rsp)](/apidocs/org/jooby/Route.Chain.html#next-org.jooby.Request-org.jooby.Response-)");
     vars.put("result", "[result](/apidocs/org/jooby/Result.html)");
     vars.put("file_upload", "[file upload](/apidocs/org/jooby/Upload.html)");
     vars.put("formurlencoded", "`application/x-www-form-urlencoded`");
     vars.put("formmultipart", "`multipart/form-data`");
     vars.put("route_map", "[map](/apidocs/org/jooby/Jooby.html#map-org.jooby.Route.Mapper-)");
     vars.put("route_with", "[with](/apidocs/org/jooby/Jooby.html#with-java.lang.Runnable-)");
-    vars.put("route_excludes", "[excludes](/apidocs/org/jooby/Route.Definition.html#excludes-java.util.List-)");
-    vars.put("route_consumes", "[consumes](/apidocs/org/jooby/Route.Definition.html#consumes-java.util.List-)");
-    vars.put("route_produces", "[produces](/apidocs/org/jooby/Route.Definition.html#produces-java.util.List-)");
-    vars.put("req_param", "[req.param(\"name\")](/apidocs/org/jooby/Request.html#param-java.lang.String-)");
-    vars.put("req_header", "[req.header(\"name\")](/apidocs/org/jooby/Request.html#header-java.lang.String-)");
+    vars.put("route_excludes",
+        "[excludes](/apidocs/org/jooby/Route.Definition.html#excludes-java.util.List-)");
+    vars.put("route_consumes",
+        "[consumes](/apidocs/org/jooby/Route.Definition.html#consumes-java.util.List-)");
+    vars.put("route_produces",
+        "[produces](/apidocs/org/jooby/Route.Definition.html#produces-java.util.List-)");
+    vars.put("req_param",
+        "[req.param(\"name\")](/apidocs/org/jooby/Request.html#param-java.lang.String-)");
+    vars.put("req_header",
+        "[req.header(\"name\")](/apidocs/org/jooby/Request.html#header-java.lang.String-)");
     vars.put("mutant", "[mutant](/apidocs/org/jooby/Mutant.html)");
     vars.put("parser", "[parser](/apidocs/org/jooby/Parser.html)");
 
     vars.put("req_filter", "[filter](/apidocs/org/jooby/Route.Filter.html)");
     vars.put("req_handler", "[handler](/apidocs/org/jooby/Route.Handler.html)");
-    vars.put("req_bodyc", "[req.body(Class)](/apidocs/org/jooby/Request.html#body-java.lang.Class-)");
+    vars.put("req_bodyc",
+        "[req.body(Class)](/apidocs/org/jooby/Request.html#body-java.lang.Class-)");
     vars.put("req_body", "[req.body()](/apidocs/org/jooby/Request.html#body--)");
     vars.put("deferred", "[deferred](/apidocs/org/jooby/Deferred.html)");
 

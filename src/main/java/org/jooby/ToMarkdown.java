@@ -32,7 +32,7 @@ public class ToMarkdown {
 
   public static void main(final String[] args) throws Exception {
     CompilationUnit unit = JavaParser.parse(new File(
-        "../jooby-project/jooby-crash/src/main/java/org/jooby/crash/Crash.java"));
+        "../jooby-project/jooby-assets-autoprefixer/src/main/java/org/jooby/assets/AutoPrefixer.java"));
 
     System.out.println(toMd(unit));
 
