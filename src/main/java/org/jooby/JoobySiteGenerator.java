@@ -56,9 +56,9 @@ public class JoobySiteGenerator {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-    checkout(outDir);
+    // checkout(outDir);
     Path md = process(basedir.resolve("md"));
-    javadoc(basedir, outDir.resolve("apidocs"));
+    // javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
@@ -130,6 +130,8 @@ public class JoobySiteGenerator {
         }
       }
     }
+
+    Guides.main(new String[]{version() });
   }
 
   static void apidoc(final Path basedir, final Path md) throws Exception {
@@ -492,8 +494,8 @@ public class JoobySiteGenerator {
       Path output = Paths.get("target", "md");
       cleanDir(output);
       // collect vars
-      Map<String, String> links = vars();
-      Map<String, String> vars = new LinkedHashMap<>(links);
+      Map<String, Object> links = vars();
+      Map<String, Object> vars = new LinkedHashMap<>(links);
       vars.put("toc.md", "");
       Iterator<Path> it = walk.iterator();
       List<Path> paths = new ArrayList<>();
@@ -509,8 +511,8 @@ public class JoobySiteGenerator {
         if (main.startsWith("---")) {
           main = main.substring(main.indexOf("---", 1) + "---".length());
         }
-        for (Entry<String, String> var : links.entrySet()) {
-          main = main.replace("{{" + var.getKey() + "}}", var.getValue());
+        for (Entry<String, Object> var : links.entrySet()) {
+          main = main.replace("{{" + var.getKey() + "}}", var.getValue().toString());
         }
         vars.put(source.relativize(path).toString(), main);
       }
@@ -526,8 +528,8 @@ public class JoobySiteGenerator {
         String appendix = appendix(basedir, path);
         main = main.replace("{{appendix}}", appendix);
 
-        for (Entry<String, String> var : vars.entrySet()) {
-          main = main.replace("{{" + var.getKey() + "}}", var.getValue());
+        for (Entry<String, Object> var : vars.entrySet()) {
+          main = main.replace("{{" + var.getKey() + "}}", var.getValue().toString());
         }
         String guide = path.getName(path.getNameCount() - 1).toString().replace(".md", "");
         main = main.replace("{{guide}}", guide);
@@ -597,8 +599,8 @@ public class JoobySiteGenerator {
     }
   }
 
-  private static Map<String, String> vars() {
-    Map<String, String> vars = new LinkedHashMap<>();
+  public static Map<String, Object> vars() {
+    Map<String, Object> vars = new LinkedHashMap<>();
 
     vars.put("year", LocalDate.now().getYear() + "");
 
