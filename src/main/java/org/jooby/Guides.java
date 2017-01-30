@@ -155,16 +155,24 @@ public class Guides {
     }
     FS.mkdirs(guideSrc);
 
+    boolean build = true;
     if (!Files.exists(guideSrc.resolve(".git"))) {
-      new Git("jooby-guides", name, guideSrc).clone();
+      try {
+        new Git("jooby-project", name, guideSrc).clone();
+      } catch (Exception x) {
+        build = false;
+      }
     }
 
-    Path mainClass = verifyMainClaass(guideSrc);
+    Path mainClass = Paths.get("/nopath");
+    if (build) {
+      mainClass = verifyMainClaass(guideSrc);
 
-    upgrade(guideSrc, version);
+      upgrade(guideSrc, version);
 
-    if (verify) {
-      new Maven(guideSrc).executable(maven).run("clean", "package");
+      if (verify) {
+        new Maven(guideSrc).executable(maven).run("clean", "package");
+      }
     }
 
     Path mdinput = mdsrc.resolve(name.replace("-guide", "") + ".md");
@@ -267,7 +275,7 @@ public class Guides {
             .clean(false)
             .verify(true)
             .maven("/usr/local/Cellar/maven/3.3.9/libexec/bin/mvn")
-            .sync("greeting", "jdbi-guide");
+            .sync("greeting", "jdbi-guide", "deployment");
   }
 
   private Guides verify(final boolean verify) {

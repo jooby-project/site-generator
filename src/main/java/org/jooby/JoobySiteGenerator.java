@@ -56,9 +56,9 @@ public class JoobySiteGenerator {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-    // checkout(outDir);
+//    checkout(outDir);
     Path md = process(basedir.resolve("md"));
-    // javadoc(basedir, outDir.resolve("apidocs"));
+//    javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
@@ -259,22 +259,10 @@ public class JoobySiteGenerator {
     return doc.toString();
   }
 
-  static void checkoutGuide(final Path outDir) throws Exception {
-    cleanDir(outDir);
-    String repo = "git@github.com:jooby-guides/" + outDir.getFileName().toString() + ".git";
-    System.out.println("git clone " + repo);
-    File dir = outDir.toFile();
-    dir.mkdirs();
-    Process git = new ProcessBuilder("git", "clone", repo, ".")
-        .directory(dir)
-        .start();
-    git.waitFor();
-    git.destroy();
-  }
-
   static void checkout(final Path outDir) throws Exception {
     cleanDir(outDir);
-    System.out.println("git clone -b gh-pages git@github.com:jooby-project/jooby.git");
+    System.out
+        .println("git clone -b gh-pages --single-branch git@github.com:jooby-project/jooby.git .");
     File dir = outDir.toFile();
     dir.mkdirs();
     int exit = new ProcessExecutor()
@@ -626,7 +614,7 @@ public class JoobySiteGenerator {
 
     vars.put("ggroup", "[group](https://groups.google.com/forum/#!forum/jooby-project)");
 
-    vars.put("slack", "[slack](https://jooby.slack.com)");
+    vars.put("slack", "[gitter](https://gitter.im/jooby-project/jooby)");
 
     vars.put("nginx", "[nginx](https://www.nginx.com)");
 
@@ -643,12 +631,12 @@ public class JoobySiteGenerator {
     vars.put("joobyrun",
         "[mvn jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin)");
 
-    vars.put("gh-guides", "https://github.com/jooby-guides");
+    vars.put("gh-guides", "https://github.com/jooby-project");
 
     vars.put("java",
         "[JDK 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)");
 
-    vars.put("templates", "[guides](https://github.com/jooby-guides)");
+    vars.put("templates", "[guides](https://github.com/jooby-project)");
 
     vars.put(
         "jetty_server",
@@ -861,7 +849,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "1.0.0";
+    return "1.0.2";
   }
 
 }
