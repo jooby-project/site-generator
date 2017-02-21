@@ -50,15 +50,15 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  static boolean release = false;
+  static boolean release = true;
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-//    checkout(outDir);
+    checkout(outDir);
     Path md = process(basedir.resolve("md"));
-//    javadoc(basedir, outDir.resolve("apidocs"));
+    javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
     try (Stream<Path> walk = Files.walk(md).filter(p -> {
@@ -849,7 +849,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "1.0.2";
+    return "1.0.3";
   }
 
 }
