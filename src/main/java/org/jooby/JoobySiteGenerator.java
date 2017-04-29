@@ -56,7 +56,7 @@ public class JoobySiteGenerator {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-    checkout(outDir);
+    // checkout(outDir);
     Path md = process(basedir.resolve("md"));
     javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
@@ -636,7 +636,8 @@ public class JoobySiteGenerator {
     vars.put("java",
         "[JDK 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)");
 
-    vars.put("templates", "[guides](https://github.com/jooby-project)");
+    vars.put("templates",
+        "[starter projects](https://github.com/search?q=topic%3Astarter+org%3Ajooby-project&type=Repositories)");
 
     vars.put(
         "jetty_server",
@@ -849,7 +850,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "1.0.3";
+    return "1.1.1";
   }
 
 }

@@ -176,10 +176,11 @@ public class Guides {
     }
 
     Path mdinput = mdsrc.resolve(name.replace("-guide", "") + ".md");
-    Path mdoutput = guideSrc.resolve("README.md");
-    toMarkdown(name, mainClass, mdinput, mdoutput, false);
-    toHtml(name, mainClass, mdinput, toMarkdown(name, mainClass, mdinput, mdoutput, true));
-
+    if (Files.exists(mdinput)) {
+      Path mdoutput = guideSrc.resolve("README.md");
+      toMarkdown(name, mainClass, mdinput, mdoutput, false);
+      toHtml(name, mainClass, mdinput, toMarkdown(name, mainClass, mdinput, mdoutput, true));
+    }
   }
 
   private String toMarkdown(final String name, final Path mainclass, final Path input,
@@ -234,7 +235,12 @@ public class Guides {
         Path src = dir.resolve("src").resolve("main").resolve("java");
         Path mainclass = Arrays.asList(it.text().split("\\.")).stream()
             .reduce(src, Path::resolve, (l, r) -> l.resolve(r));
-        appclass.set(Paths.get(mainclass.toString() + ".java"));
+        if (mainclass.toString().endsWith("Kt")) {
+          appclass
+              .set(Paths.get(mainclass.toString().replace("java", "kotlin").replace("Kt", ".kt")));
+        } else {
+          appclass.set(Paths.get(mainclass.toString() + ".java"));
+        }
       }
     });
 
@@ -270,12 +276,13 @@ public class Guides {
   }
 
   public static void main(final String[] args) throws Exception {
-    new Guides(args.length > 0 ? args[0] : "1.0.0", Paths.get("target"),
+    new Guides(args.length > 0 ? args[0] : "1.1.1", Paths.get("target"),
         Paths.get("../jooby-project/md/guides"))
             .clean(false)
             .verify(true)
             .maven("/usr/local/Cellar/maven/3.3.9/libexec/bin/mvn")
-            .sync("greeting", "jdbi-guide", "deployment");
+            .sync("kotlin-starter", "requery-starter", "ebean-starter", "rocker-starter",
+                "livereload-starter", "greeting", "jdbi-guide", "route-spec", "deployment");
   }
 
   private Guides verify(final boolean verify) {
