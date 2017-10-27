@@ -58,7 +58,7 @@
           </div>
           <div class="slider-data">
             <h3>Ready for modern web</h3>
-            <p>With the awesome and powerful <a href="/doc/assets" title="A library to validate, concatenate, minify or compress JavaScript and CSS files!">asset module</a></p>
+            <p>With the awesome and powerful <a href="/doc/asset-management" title="Build modern web applications easily">asset management tools</a></p>
           </div>
         </div>
       </div>
@@ -75,7 +75,6 @@
         <ul class="nav-lang">
           <li data-lang="java" class="active">Java</li>
           <li data-lang="kotlin">Kotlin</li>
-          <li data-lang="js">Javascript</li>
         </ul>
         <ul class="lang">
           <li class="java active">
@@ -99,27 +98,16 @@
             <div class="highlighter-rouge">
               <pre class="highlight"><code class="language-kotlin" data-lang="kotlin"><span class="kn">import</span> <span class="nn">org.jooby.*</span><span class="o"></span>
 
-<span class="kd">fun</span> <span class="nf">main</span><span class="o">(</span><span class="n">args</span><span class="o">:</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="o">)</span> <span class="o">{</span>
-  <span class="n">run</span><span class="o">(</span><span class="o">*</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">get</span> <span class="o">{</span>
-      <span class="s">"Hey Jooby!"</span>
-    <span class="o">}</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</code></pre>
-            </div>
-          </li>
-          <li class="js">
-            <div class="highlighter-rouge">
-              <pre class="highlight"><code class="language-js" data-lang="js"><span class="cm">/**</span>
-<span class="cm"> * Creates a new App via: jooby()</span>
-<span class="cm"> */</span>
-<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">jooby</span><span class="p">();</span>
+<span class="kd">class</span> <span class="nc">App</span> <span class="kd">:</span> <span class="n">Kooby</span> <span class="o">(</span><span class="o">{</span>
 
-<span class="cm">/**</span>
-<span class="cm"> * Add routes</span>
-<span class="cm"> */</span>
-<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="s1">&#39;Hey Jooby!&#39;</span><span class="p">);</span>
+    <span class="n">get</span> <span class="o">{</span>
+        <span class="s">"Hey Jooby!"</span>
+    <span class="o">}</span>
+<span class="o">})</span>
+
+<span class="kd">fun</span> <span class="nf">main</span><span class="o">(</span><span class="n">args</span><span class="o">:</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">run</span><span class="o">(</span><span class="o">::</span><span class="nf">App</span><span class="o">, </span><span class="o">*</span><span class="n">args</span><span class="o">)</span>
+<span class="o">}</span>
 </code></pre>
             </div>
           </li>
@@ -132,7 +120,7 @@
   <div class="row">
     <div class="mod mod-features">
       <div class="mod-header">
-        <h3 class="mod-title">Killer Features</h3>
+        <h3 class="mod-title">Features</h3>
       </div>
       <div data-slider data-pagination=".swiper-pagination" data-effect="fade" class="mod-content">
         <div class="swiper-pagination"></div>

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,14 +51,15 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  static boolean release = true;
+  static boolean release = false;
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
-    // checkout(outDir);
-    Path md = process(basedir.resolve("md"));
+    Path rootReadme = basedir.resolve("README.md");
+    //    checkout(outDir);
+    Path md = process(basedir.resolve("doc"));
     javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
         new FileTemplateLoader(Paths.get("src", "main", "resources", "site").toFile(), ".html"));
@@ -87,6 +89,7 @@ public class JoobySiteGenerator {
           data.put("page-url", "http://jooby.org/" + path.getParent());
           data.put("year", LocalDate.now().getYear());
           data.put("infinite", "&infin;");
+          data.put("version", version());
           Path output = Paths.get(outDir.resolve(path).toString()
               .replace("README.md", "index.html")
               .replace("index.md", "index.html")
@@ -96,13 +99,18 @@ public class JoobySiteGenerator {
           write(output, finalize(template.apply(data).trim()));
 
           if (release && path.toString().endsWith("README.md")) {
-            Path outputgh = basedir.resolve(path.toString().replace("doc/", "jooby-"))
+            Path outputgh = basedir.resolve("modules")
+                .resolve(path.toString().replace("doc/", "jooby-"))
                 .toAbsolutePath()
                 .normalize();
             File ghdir = outputgh.toFile().getParentFile();
             if (ghdir.exists()) {
               System.out.println("releasing: " + outputgh);
-              write(outputgh, main);
+              if (!outputgh.equals(rootReadme)) {
+                write(outputgh, modheader(outputgh.getParent().getFileName().toString()) + main);
+              } else {
+                write(outputgh, main);
+              }
             }
           }
           // guides
@@ -114,6 +122,10 @@ public class JoobySiteGenerator {
         }
       }
     }
+    // copy main file
+    Files.copy(basedir.resolve("modules").resolve("README.md"), rootReadme,
+        StandardCopyOption.REPLACE_EXISTING);
+    Files.deleteIfExists(basedir.resolve("modules").resolve("README.md"));
     // static files
     System.out.println("moving static resources: ");
     Path staticFiles = Paths.get("src", "main", "resources", "static-site", "resources");
@@ -132,6 +144,16 @@ public class JoobySiteGenerator {
     }
 
     Guides.main(new String[]{version() });
+  }
+
+  private static String modheader(String name) {
+    return
+        "[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/" + name
+            + "/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/" + name
+            + ")\n"
+            + "[![javadoc](https://javadoc.io/badge/org.jooby/" + name
+            + ".svg)](https://javadoc.io/doc/org.jooby/" + name + "/" + version() + ")\n"
+            + "[!["+name+" website](https://img.shields.io/badge/"+name+"-brightgreen.svg)](http://jooby.org/doc/"+name.replace("jooby-","")+")\n";
   }
 
   static void apidoc(final Path basedir, final Path md) throws Exception {
@@ -184,8 +206,8 @@ public class JoobySiteGenerator {
                     unit.toString(), 1)).append("\n\n");
               }
               javadoc.append(ToMarkdown.toMd("<pre>"
-                  + method.getDeclarationAsString().replace("<", "&lt;").replace(">", "&gt;")
-                  + "</pre>",
+                      + method.getDeclarationAsString().replace("<", "&lt;").replace(">", "&gt;")
+                      + "</pre>",
                   unit.toString())).append("\n\n");
             }
           }
@@ -282,7 +304,7 @@ public class JoobySiteGenerator {
     cleanDir(dir);
     dir.toFile().mkdirs();
     int exit = new ProcessExecutor()
-        .command("/usr/local/Cellar/maven/3.3.9/bin/mvn", "clean", "javadoc:javadoc", "-P",
+        .command("/usr/local/Cellar/maven/3.5.0/bin/mvn", "clean", "javadoc:javadoc", "-P",
             "gh-pages")
         .directory(basedir.toFile().getCanonicalFile())
         .redirectOutput(System.err)
@@ -467,7 +489,7 @@ public class JoobySiteGenerator {
       sdesc = Jsoup.parseBodyFragment(sdesc).text();
     }
     return new String[]{html.stream().collect(Collectors.joining("\n")), toc.toString(), raw,
-        title, stitle, sdesc };
+        title, stitle, sdesc};
   }
 
   private static String id(final String text) {
@@ -850,7 +872,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "1.1.1";
+    return "1.2.0";
   }
 
 }
