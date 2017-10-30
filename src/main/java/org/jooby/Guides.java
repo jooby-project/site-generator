@@ -276,7 +276,7 @@ public class Guides {
   }
 
   public static void main(final String[] args) throws Exception {
-    new Guides(args.length > 0 ? args[0] : "1.2.0", Paths.get("target"),
+    new Guides(args.length > 0 ? args[0] : "1.2.1", Paths.get("target"),
         Paths.get("../jooby-project/doc/guides"))
             .clean(false)
             .verify(true)

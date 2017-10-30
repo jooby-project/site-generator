@@ -51,7 +51,7 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  static boolean release = false;
+  static boolean release = true;
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
@@ -143,10 +143,17 @@ public class JoobySiteGenerator {
       }
     }
 
-    Guides.main(new String[]{version() });
+//    Guides.main(new String[]{version() });
   }
 
   private static String modheader(String name) {
+    if (name.equals("modules")) {
+      return
+          "[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby"
+              + "/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby"
+              + ")\n"
+              + "[![javadoc](https://javadoc.io/badge/org.jooby/jooby.svg)](https://javadoc.io/doc/org.jooby/jooby/" + version() + ")\n";
+    }
     return
         "[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/" + name
             + "/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/" + name
@@ -872,7 +879,7 @@ public class JoobySiteGenerator {
   }
 
   private static String version() {
-    return "1.2.0";
+    return "1.2.1";
   }
 
 }
