@@ -51,7 +51,7 @@ public class JoobySiteGenerator {
 
   static Object script = rubyEnv.runScriptlet(PathType.CLASSPATH, "to_html.rb");
 
-  static boolean release = true;
+  static boolean release = false;
 
   public static void main(final String[] args) throws Exception {
     Path basedir = Paths.get("..", "jooby-project");
@@ -143,7 +143,7 @@ public class JoobySiteGenerator {
       }
     }
 
-//    Guides.main(new String[]{version() });
+    //    Guides.main(new String[]{version() });
   }
 
   private static String modheader(String name) {
@@ -152,7 +152,8 @@ public class JoobySiteGenerator {
           "[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby"
               + "/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby"
               + ")\n"
-              + "[![javadoc](https://javadoc.io/badge/org.jooby/jooby.svg)](https://javadoc.io/doc/org.jooby/jooby/" + version() + ")\n";
+              + "[![javadoc](https://javadoc.io/badge/org.jooby/jooby.svg)](https://javadoc.io/doc/org.jooby/jooby/"
+              + version() + ")\n";
     }
     return
         "[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/" + name
@@ -160,7 +161,8 @@ public class JoobySiteGenerator {
             + ")\n"
             + "[![javadoc](https://javadoc.io/badge/org.jooby/" + name
             + ".svg)](https://javadoc.io/doc/org.jooby/" + name + "/" + version() + ")\n"
-            + "[!["+name+" website](https://img.shields.io/badge/"+name+"-brightgreen.svg)](http://jooby.org/doc/"+name.replace("jooby-","")+")\n";
+            + "[![" + name + " website](https://img.shields.io/badge/" + name
+            + "-brightgreen.svg)](http://jooby.org/doc/" + name.replace("jooby-", "") + ")\n";
   }
 
   static void apidoc(final Path basedir, final Path md) throws Exception {
@@ -878,8 +880,8 @@ public class JoobySiteGenerator {
     return vars;
   }
 
-  private static String version() {
-    return "1.2.1";
+  static String version() {
+    return "1.2.2";
   }
 
 }

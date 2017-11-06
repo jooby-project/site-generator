@@ -276,13 +276,25 @@ public class Guides {
   }
 
   public static void main(final String[] args) throws Exception {
-    new Guides(args.length > 0 ? args[0] : "1.2.1", Paths.get("target"),
+    new Guides(args.length > 0 ? args[0] : JoobySiteGenerator.version(), Paths.get("target"),
         Paths.get("../jooby-project/doc/guides"))
-            .clean(false)
-            .verify(true)
-            .maven("/usr/local/Cellar/maven/3.5.0/libexec/bin/mvn")
-            .sync("kotlin-starter", "requery-starter", "ebean-starter", "rocker-starter",
-                "livereload-starter", "greeting", "jdbi-guide", "apitool-starter", "webpack-starter", "deployment");
+        .clean(false)
+        .verify(true)
+        .maven("/usr/local/Cellar/maven/3.5.0/libexec/bin/mvn")
+        .sync(
+            "apitool-starter",
+            "kotlin-starter",
+            "greeting",
+            "livereload-starter",
+            "rocker-starter",
+            "ebean-starter",
+            "webpack-starter",
+            "hello-starter",
+            "websocket-starter",
+            "requery-starter",
+            "pebble-starter",
+            "jdbi-guide",
+            "deployment");
   }
 
   private Guides verify(final boolean verify) {
