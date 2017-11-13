@@ -3,8 +3,10 @@ package org.jooby;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -58,7 +60,8 @@ public class JoobySiteGenerator {
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
     Path rootReadme = basedir.resolve("README.md");
-    //    checkout(outDir);
+    System.out.println(basedir.toAbsolutePath().normalize());
+    checkout(outDir);
     Path md = process(basedir.resolve("doc"));
     javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
@@ -123,9 +126,12 @@ public class JoobySiteGenerator {
       }
     }
     // copy main file
-    Files.copy(basedir.resolve("modules").resolve("README.md"), rootReadme,
-        StandardCopyOption.REPLACE_EXISTING);
-    Files.deleteIfExists(basedir.resolve("modules").resolve("README.md"));
+    Path modules = basedir.resolve("modules").resolve("README.md");
+    if (Files.exists(modules)) {
+      Files.copy(modules, rootReadme,
+          StandardCopyOption.REPLACE_EXISTING);
+      Files.deleteIfExists(basedir.resolve("modules").resolve("README.md"));
+    }
     // static files
     System.out.println("moving static resources: ");
     Path staticFiles = Paths.get("src", "main", "resources", "static-site", "resources");
@@ -332,16 +338,20 @@ public class JoobySiteGenerator {
     if (outDir.toFile().exists()) {
       try (Stream<Path> files = Files.walk(outDir)) {
         Iterator<Path> it = files.iterator();
-        while (it.hasNext()) {
-          File file = it.next().toAbsolutePath().toFile();
-          if (!file.equals(outDir.toAbsolutePath().toFile())) {
-            if (file.isDirectory()) {
-              cleanDir(file.toPath());
-              file.delete();
-            } else {
-              file.delete();
+        try {
+          while (it.hasNext()) {
+            File file = it.next().toAbsolutePath().toFile();
+            if (!file.equals(outDir.toAbsolutePath().toFile())) {
+              if (file.isDirectory()) {
+                cleanDir(file.toPath());
+                file.delete();
+              } else {
+                file.delete();
+              }
             }
           }
+        } catch (UncheckedIOException x) {
+          //
         }
       }
     }
@@ -881,7 +891,7 @@ public class JoobySiteGenerator {
   }
 
   static String version() {
-    return "1.2.2";
+    return "1.2.3";
   }
 
 }
