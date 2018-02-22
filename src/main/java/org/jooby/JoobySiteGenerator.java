@@ -61,7 +61,7 @@ public class JoobySiteGenerator {
     Path outDir = target.resolve("gh-pages");
     Path rootReadme = basedir.resolve("README.md");
     System.out.println(basedir.toAbsolutePath().normalize());
-    checkout(outDir);
+    //checkout(outDir);
     Path md = process(basedir.resolve("doc"));
     javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
@@ -319,7 +319,7 @@ public class JoobySiteGenerator {
     cleanDir(dir);
     dir.toFile().mkdirs();
     int exit = new ProcessExecutor()
-        .command("/usr/local/Cellar/maven/3.5.0/bin/mvn", "clean", "javadoc:javadoc", "-P",
+        .command("/usr/local/Cellar/maven/3.5.2/bin/mvn", "clean", "javadoc:javadoc", "-P",
             "gh-pages")
         .directory(basedir.toFile().getCanonicalFile())
         .redirectOutput(System.err)
@@ -615,11 +615,12 @@ public class JoobySiteGenerator {
       if (!file.getParentFile().getName().equals("doc")) {
         name += "-" + file.getParentFile().getName();
       }
-      Path rsrc = basedir.resolve(Paths.get(name, "src", "main", "resources"));
+      Path rsrc = basedir.resolve("modules").resolve(Paths.get(name, "src", "main", "resources"));
       String level = "##";
+      String description = "These are the default properties for " + name.replace("jooby-", "") + ":" ;
       return Files.walk(rsrc)
           .filter(p -> p.toString().endsWith(".conf") || p.toString().endsWith(".properties"))
-          .map(p -> level + " " + p.getFileName().toString() + "\n\n```properties\n"
+          .map(p -> level + " " + p.getFileName().toString() + "\n"+ description +"\n\n```properties\n"
               + readFile(p, "\n\n").replaceAll("\n\n+", "\n\n")
               + "\n```\n\n")
           .collect(Collectors.joining("\n"));
@@ -752,7 +753,7 @@ public class JoobySiteGenerator {
 
     vars.put(
         "pac4j",
-        "[Pac4j](https://github.com/pac4j/pac4j)");
+        "[Pac4j 1.x](https://github.com/pac4j/pac4j)");
 
     vars.put(
         "version",
@@ -891,7 +892,7 @@ public class JoobySiteGenerator {
   }
 
   static String version() {
-    return "1.2.3";
+    return "1.3.0";
   }
 
 }

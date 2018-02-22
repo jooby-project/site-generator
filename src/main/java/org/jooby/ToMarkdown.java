@@ -32,7 +32,7 @@ public class ToMarkdown {
 
   public static void main(final String[] args) throws Exception {
     CompilationUnit unit = JavaParser.parse(new File(
-        "../jooby-project/modules/jooby-apitool/src/main/java/org/jooby/apitool/ApiTool.java"));
+        "../jooby-project/modules/jooby-pac4j2/src/main/java/org/jooby/pac4j/Pac4j.java"));
 
     System.out.println(toMd(unit));
 
