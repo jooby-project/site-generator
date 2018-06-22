@@ -46,6 +46,8 @@ public class Guides {
 
   private boolean verify = true;
 
+  private String gradle;
+
   public Guides(final String version, final Path basedir, final Path mdsrc) {
     this.version = version;
     this.source = basedir.resolve("guides");
@@ -141,6 +143,11 @@ public class Guides {
     return this;
   }
 
+  private Guides gradle(final String gradle) {
+    this.gradle = gradle;
+    return this;
+  }
+
   private Guides clean(final boolean b) {
     this.clean = b;
     return this;
@@ -164,23 +171,27 @@ public class Guides {
       }
     }
 
-    Path mainClass = Paths.get("/nopath");
     if (build) {
-      mainClass = verifyMainClaass(guideSrc);
+      verifyMainClass(guideSrc);
 
       upgrade(guideSrc, version);
 
       if (verify) {
-        new Maven(guideSrc).executable(maven).run("clean", "package");
+        if(Files.exists(guideSrc.resolve("pom.xml"))) {
+          new Build(guideSrc).executable(maven).run("clean", "package");
+        } else {
+          new Build(guideSrc).executable(gradle).run("build");
+        }
+        new Git("jooby-project", name, guideSrc).commit("v" + version);
       }
     }
 
-    Path mdinput = mdsrc.resolve(name.replace("-guide", "") + ".md");
-    if (Files.exists(mdinput)) {
-      Path mdoutput = guideSrc.resolve("README.md");
-      toMarkdown(name, mainClass, mdinput, mdoutput, false);
-      toHtml(name, mainClass, mdinput, toMarkdown(name, mainClass, mdinput, mdoutput, true));
-    }
+    //    Path mdinput = mdsrc.resolve(name.replace("-guide", "") + ".md");
+    //    if (Files.exists(mdinput)) {
+    //      Path mdoutput = guideSrc.resolve("README.md");
+    //      toMarkdown(name, mainClass, mdinput, mdoutput, false);
+    //      toHtml(name, mainClass, mdinput, toMarkdown(name, mainClass, mdinput, mdoutput, true));
+    //    }
   }
 
   private String toMarkdown(final String name, final Path mainclass, final Path input,
@@ -225,47 +236,57 @@ public class Guides {
     System.out.println("done " + fout);
   }
 
-  private Path verifyMainClaass(final Path dir) throws IOException {
+  private void verifyMainClass(final Path dir) throws IOException {
     Path file = dir.resolve("pom.xml");
-    Document xml = parseXml(file);
+    if (Files.exists(file)) {
+      Document xml = parseXml(file);
 
-    AtomicReference<Path> appclass = new AtomicReference<>();
-    xml.select("properties").first().children().forEach(it -> {
-      if (it.tagName().equals("application.class")) {
-        Path src = dir.resolve("src").resolve("main").resolve("java");
-        Path mainclass = Arrays.asList(it.text().split("\\.")).stream()
-            .reduce(src, Path::resolve, (l, r) -> l.resolve(r));
-        if (mainclass.toString().endsWith("Kt")) {
-          appclass
-              .set(Paths.get(mainclass.toString().replace("java", "kotlin").replace("Kt", ".kt")));
-        } else {
-          appclass.set(Paths.get(mainclass.toString() + ".java"));
+      AtomicReference<Path> appclass = new AtomicReference<>();
+      xml.select("properties").first().children().forEach(it -> {
+        if (it.tagName().equals("application.class")) {
+          Path src = dir.resolve("src").resolve("main").resolve("java");
+          Path mainclass = Arrays.asList(it.text().split("\\.")).stream()
+              .reduce(src, Path::resolve, (l, r) -> l.resolve(r));
+          if (mainclass.toString().endsWith("Kt")) {
+            appclass.set(
+                Paths.get(mainclass.toString().replace("java", "kotlin").replace("Kt", ".kt")));
+          } else {
+            appclass.set(Paths.get(mainclass.toString() + ".java"));
+          }
         }
-      }
-    });
+      });
 
-    Path path = appclass.get();
-    if (path == null || !Files.exists(path)) {
-      throw new IllegalStateException("<application.class> missing or invalid: " + path);
+      Path path = appclass.get();
+      if (path == null || !Files.exists(path)) {
+        throw new IllegalStateException("<application.class> missing or invalid: " + path);
+      }
     }
-    return path;
   }
 
   private void upgrade(final Path dir, final String version) throws IOException {
     Path file = dir.resolve("pom.xml");
-    System.out.printf("Updating %s to %s\n", file, version);
+    if (Files.exists(file)) {
+      System.out.printf("Updating %s to %s\n", file, version);
 
-    Document doc = parseXml(file);
+      Document doc = parseXml(file);
 
-    doc.select("parent version").first().text(version);
+      doc.select("parent version").first().text(version);
 
-    doc.select("properties").first().children().forEach(it -> {
-      if (it.tagName().equals("jooby.version")) {
-        it.text(version);
-      }
-    });
+      doc.select("properties").first().children().forEach(it -> {
+        if (it.tagName().equals("jooby.version")) {
+          it.text(version);
+        }
+      });
 
-    Files.write(file, doc.toString().getBytes(StandardCharsets.UTF_8));
+      Files.write(file, doc.toString().getBytes(StandardCharsets.UTF_8));
+    } else {
+      file = dir.resolve("build.gradle");
+      String gradle = Files.readAllLines(file).stream()
+          .collect(Collectors.joining("\n"));
+      gradle = gradle.replace("joobyVersion = \"1.4.0\"", "joobyVersion = \"" + version + "\"");
+
+      Files.write(file, gradle.getBytes(StandardCharsets.UTF_8));
+    }
   }
 
   private Document parseXml(final Path file) throws IOException {
@@ -280,21 +301,26 @@ public class Guides {
         Paths.get("../jooby-project/doc/guides"))
         .clean(false)
         .verify(true)
-        .maven("/usr/local/Cellar/maven/3.5.0/libexec/bin/mvn")
+        .maven("/usr/local/Cellar/maven/3.5.2/libexec/bin/mvn")
+        .gradle("/usr/local/Cellar/gradle/4.8/bin/gradle")
         .sync(
+            "kotlin-gradle-starter",
             "apitool-starter",
             "kotlin-starter",
             "greeting",
             "livereload-starter",
             "rocker-starter",
-            "ebean-starter",
-            "webpack-starter",
-            "hello-starter",
-            "websocket-starter",
+            "jdbi-starter",
             "requery-starter",
+            "gradle-starter",
+            "ebean-starter",
+            "apitool-kotlin-starter",
+            "websocket-starter",
+            "pac4j-starter",
+            "hello-starter",
             "pebble-starter",
-            "jdbi-guide",
-            "deployment");
+            "webpack-starter",
+            "jdbi-guide");
   }
 
   private Guides verify(final boolean verify) {

@@ -31,6 +31,12 @@ public class Git {
     execute(cmd);
   }
 
+  public void commit(String comment) throws Exception {
+    execute(Arrays.asList("git", "add", "."));
+    execute(Arrays.asList("git", "commit", "-m", comment));
+    execute(Arrays.asList("git", "push", "origin"));
+  }
+
   private void execute(final List<String> args) throws Exception {
     System.out.println(args.stream().collect(Collectors.joining(" ")));
     int exit = new ProcessExecutor()

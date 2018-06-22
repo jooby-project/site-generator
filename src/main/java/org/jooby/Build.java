@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 
 import org.zeroturnaround.exec.ProcessExecutor;
 
-public class Maven {
+public class Build {
 
   private Path project;
   private String exec;
 
-  public Maven(final Path project) {
+  public Build(final Path project) {
     this.project = project;
   }
 
@@ -37,7 +37,7 @@ public class Maven {
     }
   }
 
-  public Maven executable(final String exec) {
+  public Build executable(final String exec) {
     this.exec = exec;
     return this;
   }

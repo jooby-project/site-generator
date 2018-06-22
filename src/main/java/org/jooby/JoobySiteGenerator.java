@@ -61,7 +61,7 @@ public class JoobySiteGenerator {
     Path outDir = target.resolve("gh-pages");
     Path rootReadme = basedir.resolve("README.md");
     System.out.println(basedir.toAbsolutePath().normalize());
-    //checkout(outDir);
+//    checkout(outDir);
     Path md = process(basedir.resolve("doc"));
     javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
@@ -892,7 +892,7 @@ public class JoobySiteGenerator {
   }
 
   static String version() {
-    return "1.3.0";
+    return "1.4.1";
   }
 
 }
