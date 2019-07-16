@@ -33,7 +33,7 @@ public class Git {
 
   public void commit(String comment) throws Exception {
     execute(Arrays.asList("git", "add", "."));
-    execute(Arrays.asList("git", "commit", "-m", comment));
+    execute(Arrays.asList("git", "commit", "-m", "'" + comment + "'"));
     execute(Arrays.asList("git", "push", "origin"));
   }
 

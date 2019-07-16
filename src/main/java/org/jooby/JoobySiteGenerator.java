@@ -56,12 +56,16 @@ public class JoobySiteGenerator {
   static boolean release = false;
 
   public static void main(final String[] args) throws Exception {
-    Path basedir = Paths.get("..", "jooby-project");
+    Path basedir = Paths.get("..", "jooby-project").toAbsolutePath();
+    System.out.println(basedir);
+    if (!Files.exists(basedir)) {
+      throw new FileNotFoundException(basedir.toString());
+    }
     Path target = Paths.get("target");
     Path outDir = target.resolve("gh-pages");
     Path rootReadme = basedir.resolve("README.md");
     System.out.println(basedir.toAbsolutePath().normalize());
-//    checkout(outDir);
+    checkout(outDir);
     Path md = process(basedir.resolve("doc"));
     javadoc(basedir, outDir.resolve("apidocs"));
     Handlebars hbs = new Handlebars(
@@ -155,16 +159,15 @@ public class JoobySiteGenerator {
   private static String modheader(String name) {
     if (name.equals("modules")) {
       return
-          "[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby"
-              + "/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby"
-              + ")\n"
+          "[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/jooby/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/jooby/"
+              + version() + ")\n"
               + "[![javadoc](https://javadoc.io/badge/org.jooby/jooby.svg)](https://javadoc.io/doc/org.jooby/jooby/"
               + version() + ")\n";
     }
     return
-        "[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/" + name
-            + "/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/" + name
-            + ")\n"
+        "[![Maven](https://img.shields.io/maven-metadata/v/http/central.maven.org/maven2/org/jooby/"
+            + name + "/maven-metadata.xml.svg)](http://mvnrepository.com/artifact/org.jooby/" + name
+            + "/" + version() + ")\n"
             + "[![javadoc](https://javadoc.io/badge/org.jooby/" + name
             + ".svg)](https://javadoc.io/doc/org.jooby/" + name + "/" + version() + ")\n"
             + "[![" + name + " website](https://img.shields.io/badge/" + name
@@ -617,10 +620,12 @@ public class JoobySiteGenerator {
       }
       Path rsrc = basedir.resolve("modules").resolve(Paths.get(name, "src", "main", "resources"));
       String level = "##";
-      String description = "These are the default properties for " + name.replace("jooby-", "") + ":" ;
+      String description =
+          "These are the default properties for " + name.replace("jooby-", "") + ":";
       return Files.walk(rsrc)
           .filter(p -> p.toString().endsWith(".conf") || p.toString().endsWith(".properties"))
-          .map(p -> level + " " + p.getFileName().toString() + "\n"+ description +"\n\n```properties\n"
+          .map(p -> level + " " + p.getFileName().toString() + "\n" + description
+              + "\n\n```properties\n"
               + readFile(p, "\n\n").replaceAll("\n\n+", "\n\n")
               + "\n```\n\n")
           .collect(Collectors.joining("\n"));
@@ -892,7 +897,7 @@ public class JoobySiteGenerator {
   }
 
   static String version() {
-    return "1.4.1";
+    return "1.6.3";
   }
 
 }

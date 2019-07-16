@@ -283,7 +283,7 @@ public class Guides {
       file = dir.resolve("build.gradle");
       String gradle = Files.readAllLines(file).stream()
           .collect(Collectors.joining("\n"));
-      gradle = gradle.replace("joobyVersion = \"1.4.0\"", "joobyVersion = \"" + version + "\"");
+      gradle = gradle.replaceAll("joobyVersion = \".*\"", "joobyVersion = \"" + version + "\"");
 
       Files.write(file, gradle.getBytes(StandardCharsets.UTF_8));
     }
